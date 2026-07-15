@@ -37,30 +37,38 @@
     <!-- Everything inside #main-app is auth-gated by LWS_Access_Codes.gate(). -->
     <div id="main-app">
 
+      <!-- Season-agnostic banner: shown when the current season has no city-capture mechanic.
+           When populated, hides #season-city-panel below. -->
+      <div class="card" id="season-fallback-banner" style="display:none;border-left:3px solid #c9a961;">
+        <h2 id="fallbackTitle">City capture doesn't apply this season</h2>
+        <p class="kb-cite" id="fallbackBody">This tool is built around Season 2's city + dig-site capture mechanic. Switch the warzone / season selector above to a season with city captures (S2 Polar Storm, S3 Golden Kingdom, S4 Evernight Isle) to use the planner.</p>
+      </div>
+
+      <div id="season-city-panel">
       <div class="card">
         <h1 data-i18n="title">City / Dig-Site Capture Planner</h1>
-        <p class="lede" data-i18n="lede">
+        <p class="lede" id="ledeText" data-i18n="lede">
           Season 2 territory planner. Pick which of the 6 cities and 4 dig-sites your alliance captures on each day of Weeks 1–4, factoring city temperature bonuses (+5 °C at L1 → +60 °C at L6) and the 36-hour post-capture protection window.
         </p>
 
-        <!-- Capacity display: 6/6 cities + 4/4 dig-sites (KB [[06-season-2-frozen]]) -->
+        <!-- Capacity display: caps + labels sourced live from LWSSeasons.mechanics_config. -->
         <div class="capacity-grid">
           <div class="capacity-block">
             <p class="capacity-title" data-i18n="capacityCities">Cities captured</p>
             <div class="capacity-slots" id="citySlots"></div>
-            <p class="kb-cite" data-i18n="capacityCitiesHelp">Max 6 cities per alliance</p>
+            <p class="kb-cite" id="capacityCitiesHelp">Max 6 cities per alliance</p>
           </div>
-          <div class="capacity-block">
+          <div class="capacity-block" id="digCapacityBlock">
             <p class="capacity-title" data-i18n="capacityDigs">Dig sites captured</p>
             <div class="capacity-slots" id="digSlots"></div>
-            <p class="kb-cite" data-i18n="capacityDigsHelp">Max 4 dig sites per alliance</p>
+            <p class="kb-cite" id="capacityDigsHelp">Max 4 dig sites per alliance</p>
           </div>
         </div>
 
-        <!-- Captures-per-day counter: KB says 2/day max -->
+        <!-- Captures-per-day counter — max sourced from mechanics_config.captures_per_day or city_captures_per_day. -->
         <div class="capture-counter">
-          <span><span data-i18n="captureCounterLabel">Captures used today</span>: <strong id="capturesToday">0</strong> <span data-i18n="captureCounterMax">of 2 max</span></span>
-          <span class="kb-cite">KB: <a href="#" title="[[06-season-2-frozen]]">06-season-2-frozen</a> — 2 captures/day cap</span>
+          <span><span data-i18n="captureCounterLabel">Captures used today</span>: <strong id="capturesToday">0</strong> <span id="captureCounterMax">of 2 max</span></span>
+          <span class="kb-cite" id="captureCounterCite">KB: <a href="#" title="[[06-season-2-frozen]]">06-season-2-frozen</a> — 2 captures/day cap</span>
         </div>
 
         <p class="kb-cite" style="margin-top: 12px;" data-i18n="adjacencyRule">
@@ -102,14 +110,8 @@
           </div>
           <details style="color:var(--text-dim);font-size:12px;">
             <summary style="cursor:pointer;color:var(--accent);" data-i18n="unlockSchedule">Unlock schedule</summary>
-            <ul style="margin:8px 0 0 20px; padding:0; line-height:1.7;">
-              <li data-i18n="unlockL1">L1 Village — W1 D3+12h</li>
-              <li data-i18n="unlockL2">L2 Town — W1 D6+12h</li>
-              <li data-i18n="unlockL3">L3 — W2 D3+12h</li>
-              <li data-i18n="unlockL4">L4 — W2 D6+12h</li>
-              <li data-i18n="unlockL5">L5 — W3 D3+12h</li>
-              <li data-i18n="unlockL6">L6 — W3 D6+12h</li>
-              <li data-i18n="unlockL7">L7 (Capitol-tier) — W4 D7+12h</li>
+            <ul id="unlockList" style="margin:8px 0 0 20px; padding:0; line-height:1.7;">
+              <!-- Populated from mechanics_config.city_unlock_schedule at boot + on lws:season-changed. -->
             </ul>
           </details>
         </div>
@@ -128,7 +130,7 @@
               <th data-i18n="thCoord">Coordinate</th>
               <th data-i18n="thTargetLevel">Target L</th>
               <th data-i18n="thHeatDelta">Heat Δ</th>
-              <th data-i18n="thSoilPerHr">Soil/hr</th>
+              <th id="thResourcePerHr" data-i18n="thSoilPerHr">Soil/hr</th>
               <th data-i18n="thUnlock">Unlocks</th>
               <th data-i18n="thNotes">Notes</th>
             </tr>
@@ -145,9 +147,9 @@
       </div>
 
       <div class="card">
-        <h2 data-i18n="protectionHeading">Post-capture protection (36 h)</h2>
+        <h2 id="protectionHeading" data-i18n="protectionHeading">Post-capture protection (36 h)</h2>
         <div id="protectionEmpty" style="color:var(--text-mute);font-size:13px;padding:16px 0;" data-i18n="protectionEmpty">
-          No captured territories yet. Once you capture, the 36-hour shield countdown appears here.
+          No captured territories yet. Once you capture, the shield countdown appears here.
         </div>
         <div class="protection-list" id="protectionList"></div>
       </div>
@@ -171,6 +173,8 @@
         </div>
         <p class="kb-cite" style="margin-top:12px;" data-i18n="kbCite">Numbers sourced from LWS Knowledge Base</p>
       </div>
+
+      </div><!-- /#season-city-panel -->
 
     </div><!-- /#main-app -->
 
@@ -209,36 +213,126 @@
       renderCapacity();  // re-render slot titles etc.
     });
 
-    // ---- KB constants -------------------------------------------------------
-    // Every specific number MUST cite a KB article via wikilink comment.
+    // ---- Season-driven mechanics config -------------------------------------
+    // All caps + curves below are now hydrated from LWSSeasons.getMechanicsConfig()
+    // rather than hardcoded. Defaults are S2 values for offline / pre-load
+    // rendering so first paint isn't blank. KB refs remain in comments.
+    //
+    // Season -> mechanics_config key mapping (see LWS_Seasons/seasons.json):
+    //   S2 Polar Storm:      cities_per_alliance, dig_sites_per_alliance,
+    //                        captures_per_day, protection_hours,
+    //                        city_heat_bonus_c_by_level,
+    //                        city_rare_soil_per_hr_by_level,
+    //                        city_unlock_schedule
+    //   S3 Golden Kingdom:   cities_per_alliance, dig_sites_per_alliance,
+    //                        city_captures_per_day, spice_per_hour_by_city_level
+    //                        (no heat bonus mechanic — desert map).
+    //   S4 Evernight Isle:   cities_per_alliance, dig_sites_per_alliance,
+    //                        city_captures_per_day, copper_per_hour_by_city_level.
+    //   S5 Wild West / S6 Shadow Rainforest / S1 Doomsday: no city-capture
+    //                        concept as scoped by this tool → fallback banner.
 
-    var MAX_CITIES = 6;              // KB: [[06-season-2-frozen]] 6 cities per alliance
-    var MAX_DIGS = 4;                // KB: [[06-season-2-frozen]] 4 dig sites per alliance
-    var CAPTURES_PER_DAY = 2;        // KB: [[06-season-2-frozen]] 2 captures/day max
-    var PROTECTION_HOURS = 36;       // KB: [[06-season-2-frozen]] 36-hour post-capture protection (dig sites)
-                                     // NOTE: cities cited as "~6 days" in KB; treat as separate constant when we
-                                     // distinguish. v0.1 uses 36h uniformly for the countdown UI.
+    var MAX_CITIES = 6;              // KB default: [[06-season-2-frozen]] 6 cities/alliance
+    var MAX_DIGS = 4;                // KB default: [[06-season-2-frozen]] 4 dig-sites/alliance
+    var CAPTURES_PER_DAY = 2;        // KB default: 2 captures/day max
+    var PROTECTION_HOURS = 36;       // KB default: 36-hour post-capture protection (dig sites)
+    var CITY_HEAT_BY_LEVEL = { 1:5, 2:16, 3:27, 4:38, 5:49, 6:60 };  // S2 default
+    var CITY_SOIL_PER_HR   = { 1:350, 2:480, 3:610, 4:740, 5:870, 6:1000 }; // S2 default
+    var CITY_UNLOCK_SCHEDULE = [
+      { level: 1, week: 1, day: 3, hour: 12 },
+      { level: 2, week: 1, day: 6 },
+      { level: 3, week: 2, day: 3 },
+      { level: 4, week: 2, day: 6 },
+      { level: 5, week: 3, day: 3 },
+      { level: 6, week: 3, day: 6 }
+    ];
+    // Per-season resource axis: "soil" (S2), "spice" (S3), "copper" (S4), or null.
+    var CITY_RESOURCE_LABEL = 'Soil/hr';
+    var CITY_RESOURCE_KEY = 'soil';
+    var HAS_HEAT_MECHANIC = true;
 
-    // City heat bonus by level. KB: [[06-season-2-frozen]] L1 +5°C -> L6 +60°C in +11°C increments.
-    // L2-L5 values are INTERPOLATED (KB flags interior levels as inferred; only L1/L6 sourced).
-    var CITY_HEAT_BY_LEVEL = {
-      1: 5,   // KB: [[06-season-2-frozen]] cited
-      2: 16,  // interpolated — KB open question #8
-      3: 27,  // interpolated — KB open question #8
-      4: 38,  // interpolated — KB open question #8
-      5: 49,  // interpolated — KB open question #8
-      6: 60,  // KB: [[06-season-2-frozen]] cited
+    // Seasons this tool supports (has city-capture-per-alliance concept).
+    // Everything else shows the fallback banner.
+    var SUPPORTED_SEASONS = {
+      's2-polar-storm':      { resource: 'soil',   soil_key: 'city_rare_soil_per_hr_by_level', has_heat: true  },
+      's3-golden-kingdom':   { resource: 'spice',  soil_key: 'spice_per_hour_by_city_level',   has_heat: false },
+      's4-evernight-isle':   { resource: 'copper', soil_key: 'copper_per_hour_by_city_level',  has_heat: false }
     };
 
-    // City Rare Soil / hr by level. Same interpolation caveat as CITY_HEAT_BY_LEVEL.
-    var CITY_SOIL_PER_HR = {
-      1: 350,   // KB: [[06-season-2-frozen]]
-      2: 480,   // interpolated
-      3: 610,   // interpolated
-      4: 740,   // interpolated
-      5: 870,   // interpolated
-      6: 1000,  // KB: [[06-season-2-frozen]]
-    };
+    function applyMechanicsConfig(seasonId, mc) {
+      var supported = SUPPORTED_SEASONS[seasonId];
+      var panel = document.getElementById('season-city-panel');
+      var banner = document.getElementById('season-fallback-banner');
+      var fbTitle = document.getElementById('fallbackTitle');
+      var fbBody = document.getElementById('fallbackBody');
+
+      if (!supported) {
+        // Season doesn't apply → show banner, hide panel.
+        panel.style.display = 'none';
+        banner.style.display = '';
+        var name = (window.__LWS_SEASON_NAME) || seasonId || 'this season';
+        fbTitle.textContent = 'City capture doesn’t apply to ' + name;
+        var msg = 'This tool is built around the S2/S3/S4-style "cities + dig-sites per alliance" mechanic. ';
+        if (seasonId === 's5-wild-west') {
+          msg += 'S5 Wild West replaces cities with Banks + Crystalgold deposits — see the mechanics_config bank_* / crystalgold_* keys. A separate S5 planner would be a better fit.';
+        } else if (seasonId === 's6-shadow-rainforest') {
+          msg += 'S6 Shadow Rainforest cities are permanently destructible via 4-faction warfare — Altars replace the neutral-capture flow. This tool’s protection-timer model does not translate.';
+        } else if (seasonId === 's1-crimson-plague') {
+          msg += 'S1 Crimson Plague is Doomsday-cycle PvE; there is no per-alliance city-capture allocation.';
+        } else {
+          msg += 'Switch warzone/season to S2, S3, or S4 above to use the planner.';
+        }
+        fbBody.textContent = msg;
+        return;
+      }
+      banner.style.display = 'none';
+      panel.style.display = '';
+
+      // Hydrate caps + curves from mc, falling back to S2 defaults if a key is
+      // absent for the current season (defensive against KB gaps).
+      MAX_CITIES = mc.cities_per_alliance || 6;
+      MAX_DIGS = mc.dig_sites_per_alliance || 4;
+      // S2 uses `captures_per_day`; S3/S4 use `city_captures_per_day`.
+      CAPTURES_PER_DAY = mc.captures_per_day || mc.city_captures_per_day || 2;
+      PROTECTION_HOURS = mc.protection_hours || 36;
+      CITY_HEAT_BY_LEVEL = mc.city_heat_bonus_c_by_level || {};
+      HAS_HEAT_MECHANIC = supported.has_heat && !!mc.city_heat_bonus_c_by_level;
+      CITY_SOIL_PER_HR = mc[supported.soil_key] || {};
+      CITY_UNLOCK_SCHEDULE = mc.city_unlock_schedule || [];
+      CITY_RESOURCE_KEY = supported.resource;
+      CITY_RESOURCE_LABEL = ({ soil: 'Soil/hr', spice: 'Spice/hr', copper: 'Copper/hr' })[supported.resource];
+
+      // Reflect the new caps in the UI captions.
+      var capCitiesHelp = document.getElementById('capacityCitiesHelp');
+      if (capCitiesHelp) capCitiesHelp.textContent = 'Max ' + MAX_CITIES + ' cities per alliance';
+      var capDigsHelp = document.getElementById('capacityDigsHelp');
+      if (capDigsHelp) capDigsHelp.textContent = 'Max ' + MAX_DIGS + ' dig sites per alliance';
+      var maxLabel = document.getElementById('captureCounterMax');
+      if (maxLabel) maxLabel.textContent = 'of ' + CAPTURES_PER_DAY + ' max';
+      var cite = document.getElementById('captureCounterCite');
+      if (cite) {
+        var kbId = seasonId === 's3-golden-kingdom' ? '07-future-seasons (S3)'
+                 : seasonId === 's4-evernight-isle' ? '07-future-seasons (S4)'
+                 : '06-season-2-frozen';
+        cite.innerHTML = 'KB: <a href="#" title="[[' + kbId + ']]">' + kbId + '</a> — ' + CAPTURES_PER_DAY + ' captures/day cap';
+      }
+
+      var protHead = document.getElementById('protectionHeading');
+      if (protHead) protHead.textContent = 'Post-capture protection (' + PROTECTION_HOURS + ' h)';
+
+      // Rebuild the unlock-schedule <ul>.
+      var ul = document.getElementById('unlockList');
+      if (ul) {
+        if (CITY_UNLOCK_SCHEDULE.length) {
+          ul.innerHTML = CITY_UNLOCK_SCHEDULE.map(function (row) {
+            var suffix = row.hour ? ('+' + row.hour + 'h') : '';
+            return '<li>L' + row.level + ' — W' + row.week + ' D' + row.day + suffix + '</li>';
+          }).join('');
+        } else {
+          ul.innerHTML = '<li style="color:var(--text-mute)">No unlock schedule declared for this season</li>';
+        }
+      }
+    }
 
     // ---- state --------------------------------------------------------------
     // Mock data for the scaffold pass. Real data comes from roster CSV + candidate paste.
@@ -431,7 +525,7 @@
       ctx.fillStyle = C.textDim; ctx.font = '400 13px system-ui, sans-serif';
       ctx.textAlign = 'right';
       var citiesUsed = state.captured.cities.length, digsUsed = state.captured.digs.length;
-      ctx.fillText('Cities ' + citiesUsed + '/6 · Dig-sites ' + digsUsed + '/4 · Today ' + state.capturesToday + '/2', W - 40, 40);
+      ctx.fillText('Cities ' + citiesUsed + '/' + MAX_CITIES + ' · Dig-sites ' + digsUsed + '/' + MAX_DIGS + ' · Today ' + state.capturesToday + '/' + CAPTURES_PER_DAY, W - 40, 40);
       ctx.textAlign = 'left';
 
       // Capacity slots row
@@ -439,7 +533,7 @@
       ctx.fillStyle = C.textMut; ctx.font = '500 12px system-ui, sans-serif';
       ctx.fillText('CITIES', 40, capY + 22);
       var cx0 = 130;
-      for (var i = 0; i < 6; i++) {
+      for (var i = 0; i < MAX_CITIES; i++) {
         var filled = i < state.captured.cities.length;
         var lvl = filled ? state.captured.cities[i].level : null;
         ctx.fillStyle = filled ? C.city : C.panel2;
@@ -455,7 +549,7 @@
       ctx.textAlign = 'left';
       ctx.fillText('DIG-SITES', 610, capY + 22);
       var dx0 = 720;
-      for (var j = 0; j < 4; j++) {
+      for (var j = 0; j < MAX_DIGS; j++) {
         var filledD = j < state.captured.digs.length;
         var lvlD = filledD ? state.captured.digs[j].level : null;
         ctx.fillStyle = filledD ? C.dig : C.panel2;
@@ -474,7 +568,7 @@
       ctx.fillText('PRIORITY QUEUE', 40, 210);
       ctx.fillStyle = C.textMut; ctx.font = '400 12px system-ui, sans-serif';
       ctx.textAlign = 'right';
-      ctx.fillText('KB: [[06-season-2-frozen]] · 6 cities + 4 dig-sites max · 2 captures/day · 36h post-capture protection',
+      ctx.fillText(MAX_CITIES + ' cities + ' + MAX_DIGS + ' dig-sites max · ' + CAPTURES_PER_DAY + ' captures/day · ' + PROTECTION_HOURS + 'h post-capture protection',
                    W - 40, 210);
       ctx.textAlign = 'left';
 
@@ -483,13 +577,15 @@
       ctx.fillStyle = C.panel; ctx.fillRect(40, tableY, W - 80, tableH);
       ctx.strokeStyle = C.border; ctx.strokeRect(40, tableY, W - 80, tableH);
 
+      var resLabel = (CITY_RESOURCE_LABEL || 'Soil/hr').toUpperCase();
+      var heatColLabel = HAS_HEAT_MECHANIC ? 'HEAT BONUS' : '—';
       var cols = [
         { label: '#',            x: 60,   w: 40,  align: 'center' },
         { label: 'TYPE',         x: 110,  w: 90,  align: 'left' },
         { label: 'TARGET LVL',   x: 210,  w: 130, align: 'center' },
         { label: 'COORD',        x: 350,  w: 200, align: 'left' },
-        { label: 'HEAT BONUS',   x: 560,  w: 200, align: 'right' },
-        { label: 'SOIL/HR',      x: 770,  w: 200, align: 'right' },
+        { label: heatColLabel,   x: 560,  w: 200, align: 'right' },
+        { label: resLabel,       x: 770,  w: 200, align: 'right' },
         { label: 'NOTES',        x: 980,  w: 540, align: 'left' },
       ];
       ctx.fillStyle = C.accent; ctx.font = '600 12px system-ui, sans-serif';
@@ -525,9 +621,9 @@
         ctx.textAlign = 'left'; ctx.fillStyle = C.textDim;
         ctx.font = '500 12px ui-monospace, monospace';
         ctx.fillText('(' + c.x + ', ' + c.y + ')', cols[3].x, y);
-        // Heat bonus (only for cities — KB curve +5 L1 → +60 L6)
+        // Heat bonus (S2-only — S3/S4 have no heat mechanic → dash out the column)
         ctx.textAlign = 'right';
-        if (isCity && typeof CITY_HEAT_BY_LEVEL !== 'undefined' && CITY_HEAT_BY_LEVEL[c.targetLevel] != null) {
+        if (HAS_HEAT_MECHANIC && isCity && CITY_HEAT_BY_LEVEL[c.targetLevel] != null) {
           ctx.fillStyle = C.good; ctx.font = '600 12px ui-monospace, monospace';
           ctx.fillText('+' + CITY_HEAT_BY_LEVEL[c.targetLevel] + '°C', cols[4].x + cols[4].w, y);
         } else {
@@ -575,11 +671,12 @@
     }
 
     document.getElementById('btnExportCsv').addEventListener('click', function () {
-      var header = 'priority,type,x,y,target_level,heat_delta_c,soil_per_hr,notes\n';
+      // Column names include the per-season resource so downstream sheets don't mis-label S3 spice as S2 soil.
+      var header = 'priority,type,x,y,target_level,heat_delta_c,' + CITY_RESOURCE_KEY + '_per_hr,notes\n';
       var body = state.candidates.map(function (c, i) {
-        var heat = c.type === 'city' ? CITY_HEAT_BY_LEVEL[c.targetLevel] : '';
-        var soil = c.type === 'city' ? CITY_SOIL_PER_HR[c.targetLevel] : '';
-        return [100 - i, c.type, c.x, c.y, c.targetLevel, heat, soil, (c.notes || '').replace(/,/g, ';')].join(',');
+        var heat = (HAS_HEAT_MECHANIC && c.type === 'city') ? (CITY_HEAT_BY_LEVEL[c.targetLevel] || '') : '';
+        var res  = c.type === 'city' ? (CITY_SOIL_PER_HR[c.targetLevel] || '') : '';
+        return [100 - i, c.type, c.x, c.y, c.targetLevel, heat, res, (c.notes || '').replace(/,/g, ';')].join(',');
       }).join('\n');
       downloadBlob(header + body, 'capture-queue.csv', 'text/csv');
     });
@@ -623,6 +720,38 @@
 
     // ---- boot ---------------------------------------------------------------
 
+    // Pull mechanics_config from LWSSeasons and re-render on season changes.
+    // Initial paint uses S2 defaults so this fetching is opportunistic —
+    // if the CDN + local data/ both fail (e.g. offline dev), we keep S2 defaults.
+    function bootFromSeasons() {
+      if (!window.LWSSeasons || !window.LWSSeasons.resolve) return;
+      window.LWSSeasons.resolve().then(function (ctx) {
+        window.__LWS_SEASON_NAME = (ctx.season && ctx.season.name && (ctx.season.name.en || ctx.season.name.ko)) || ctx.season_id;
+        var mc = (ctx.season && ctx.season.mechanics_config) || {};
+        applyMechanicsConfig(ctx.season_id, mc);
+        // Update the resource column header now that we know the season.
+        var thRes = document.getElementById('thResourcePerHr');
+        if (thRes) thRes.textContent = CITY_RESOURCE_LABEL;
+        renderCapacity();
+        renderQueue();
+        renderProtection();
+      }).catch(function (e) {
+        console.warn('[capture-planner] LWSSeasons unavailable — using S2 defaults', e);
+      });
+    }
+
+    // Fire once at boot (allow seasons-lib.js `defer` script to load first).
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+      setTimeout(bootFromSeasons, 0);
+    } else {
+      document.addEventListener('DOMContentLoaded', bootFromSeasons);
+    }
+
+    // Live re-hydrate whenever the user changes warzone/season via the selector.
+    window.addEventListener('lws:season-changed', bootFromSeasons);
+    window.addEventListener('lws:warzone-changed', bootFromSeasons);
+
+    // First paint with S2 defaults (rendered before the LWSSeasons Promise resolves).
     renderCapacity();
     renderQueue();
     renderProtection();
