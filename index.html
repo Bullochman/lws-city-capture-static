@@ -1,0 +1,617 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>City / Dig-Site Capture Planner — LWS Suite</title>
+  <meta name="description" content="Season 2 territory planner for Last War: Survival alliances. Plan captures across the first 4 weeks with city heat bonuses and 36-hour protection timers." />
+  <link rel="stylesheet" href="static/styles.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header class="app-header">
+      <div>
+        <span class="brand" data-i18n="brand">R5TOOLS.IO</span>
+        <span class="brand-sub" data-i18n="brandSub">LWS Suite</span>
+      </div>
+      <button class="lang-toggle" id="langToggle" data-i18n="langToggle">한국어</button>
+    </header>
+
+    <!-- Everything inside #main-app is auth-gated by LWS_Access_Codes.gate(). -->
+    <div id="main-app">
+
+      <div class="card">
+        <h1 data-i18n="title">City / Dig-Site Capture Planner</h1>
+        <p class="lede" data-i18n="lede">
+          Season 2 territory planner. Pick which of the 6 cities and 4 dig-sites your alliance captures on each day of Weeks 1–4, factoring city temperature bonuses (+5 °C at L1 → +60 °C at L6) and the 36-hour post-capture protection window.
+        </p>
+
+        <!-- Capacity display: 6/6 cities + 4/4 dig-sites (KB [[06-season-2-frozen]]) -->
+        <div class="capacity-grid">
+          <div class="capacity-block">
+            <p class="capacity-title" data-i18n="capacityCities">Cities captured</p>
+            <div class="capacity-slots" id="citySlots"></div>
+            <p class="kb-cite" data-i18n="capacityCitiesHelp">Max 6 cities per alliance</p>
+          </div>
+          <div class="capacity-block">
+            <p class="capacity-title" data-i18n="capacityDigs">Dig sites captured</p>
+            <div class="capacity-slots" id="digSlots"></div>
+            <p class="kb-cite" data-i18n="capacityDigsHelp">Max 4 dig sites per alliance</p>
+          </div>
+        </div>
+
+        <!-- Captures-per-day counter: KB says 2/day max -->
+        <div class="capture-counter">
+          <span><span data-i18n="captureCounterLabel">Captures used today</span>: <strong id="capturesToday">0</strong> <span data-i18n="captureCounterMax">of 2 max</span></span>
+          <span class="kb-cite">KB: <a href="#" title="[[06-season-2-frozen]]">06-season-2-frozen</a> — 2 captures/day cap</span>
+        </div>
+
+        <p class="kb-cite" style="margin-top: 12px;" data-i18n="adjacencyRule">
+          Rule: first capture MUST be a L1 dig site. Every subsequent capture must be adjacent to owned territory.
+        </p>
+      </div>
+
+      <div class="section-cols">
+        <div class="card">
+          <h2 data-i18n="hiveCenterHeading">Hive center coordinate</h2>
+          <p class="kb-cite" data-i18n="hiveCenterHelp">Alliance Furnace location (used for adjacency + proximity scoring)</p>
+          <div style="display: flex; gap: 12px; margin-top: 16px;">
+            <label>
+              <span data-i18n="hiveCenterX">X</span>:
+              <input type="number" id="hiveX" value="120" style="width:80px;padding:6px;background:var(--panel-2);color:var(--text);border:1px solid var(--border);border-radius:4px;font-family:var(--mono);" />
+            </label>
+            <label>
+              <span data-i18n="hiveCenterY">Y</span>:
+              <input type="number" id="hiveY" value="120" style="width:80px;padding:6px;background:var(--panel-2);color:var(--text);border:1px solid var(--border);border-radius:4px;font-family:var(--mono);" />
+            </label>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 data-i18n="weekPickerHeading">Season timeline</h2>
+          <div style="display:flex;gap:12px;margin-bottom:12px;">
+            <label>
+              <span data-i18n="week">Week</span>:
+              <select id="weekSel" style="padding:6px;background:var(--panel-2);color:var(--text);border:1px solid var(--border);border-radius:4px;">
+                <option>1</option><option>2</option><option>3</option><option>4</option>
+              </select>
+            </label>
+            <label>
+              <span data-i18n="day">Day</span>:
+              <select id="daySel" style="padding:6px;background:var(--panel-2);color:var(--text);border:1px solid var(--border);border-radius:4px;">
+                <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option>
+              </select>
+            </label>
+          </div>
+          <details style="color:var(--text-dim);font-size:12px;">
+            <summary style="cursor:pointer;color:var(--accent);" data-i18n="unlockSchedule">Unlock schedule</summary>
+            <ul style="margin:8px 0 0 20px; padding:0; line-height:1.7;">
+              <li data-i18n="unlockL1">L1 Village — W1 D3+12h</li>
+              <li data-i18n="unlockL2">L2 Town — W1 D6+12h</li>
+              <li data-i18n="unlockL3">L3 — W2 D3+12h</li>
+              <li data-i18n="unlockL4">L4 — W2 D6+12h</li>
+              <li data-i18n="unlockL5">L5 — W3 D3+12h</li>
+              <li data-i18n="unlockL6">L6 — W3 D6+12h</li>
+              <li data-i18n="unlockL7">L7 (Capitol-tier) — W4 D7+12h</li>
+            </ul>
+          </details>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 data-i18n="queueHeading">Priority queue</h2>
+        <div id="queueEmpty" style="color:var(--text-mute);font-size:13px;padding:24px 0;text-align:center;" data-i18n="queueEmpty">
+          No candidates loaded yet. Paste candidate coordinates below or upload your scouted list.
+        </div>
+        <table class="queue-table" id="queueTable" style="display:none;">
+          <thead>
+            <tr>
+              <th data-i18n="thPriority">Priority</th>
+              <th data-i18n="thType">Type</th>
+              <th data-i18n="thCoord">Coordinate</th>
+              <th data-i18n="thTargetLevel">Target L</th>
+              <th data-i18n="thHeatDelta">Heat Δ</th>
+              <th data-i18n="thSoilPerHr">Soil/hr</th>
+              <th data-i18n="thUnlock">Unlocks</th>
+              <th data-i18n="thNotes">Notes</th>
+            </tr>
+          </thead>
+          <tbody id="queueBody"></tbody>
+        </table>
+
+        <div class="btn-row">
+          <button class="btn secondary" id="btnImportRoster" data-i18n="importRoster">Import roster CSV</button>
+          <button class="btn secondary" id="btnImportCandidates" data-i18n="importCandidates">Import candidates</button>
+          <button class="btn secondary" id="btnAddCandidate" data-i18n="addCandidate">Add candidate</button>
+          <button class="btn" id="btnRank" data-i18n="rank">Rank candidates</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 data-i18n="protectionHeading">Post-capture protection (36 h)</h2>
+        <div id="protectionEmpty" style="color:var(--text-mute);font-size:13px;padding:16px 0;" data-i18n="protectionEmpty">
+          No captured territories yet. Once you capture, the 36-hour shield countdown appears here.
+        </div>
+        <div class="protection-list" id="protectionList"></div>
+      </div>
+
+      <div class="card">
+        <h2 data-i18n="rosterHeading">Alliance roster</h2>
+        <div id="rosterEmpty" style="color:var(--text-mute);font-size:13px;padding:16px 0;" data-i18n="rosterEmpty">
+          No roster loaded. Upload your alliance CSV (same format as Hive Grid Manager).
+        </div>
+        <div id="rosterSummary" style="display:none;"></div>
+      </div>
+
+      <div class="card">
+        <h2>Export</h2>
+        <div class="btn-row">
+          <button class="btn" id="btnExportPng" data-i18n="exportPng">Export PNG roadmap</button>
+          <button class="btn secondary" id="btnExportCsv" data-i18n="exportCsv">Export CSV queue</button>
+          <button class="btn secondary" id="btnExportJson" data-i18n="exportJson">Export JSON queue</button>
+          <button class="btn secondary" id="btnCopyDiscord" data-i18n="copyDiscord">Copy Discord summary</button>
+          <button class="btn secondary" id="btnHeatSim" data-i18n="openHeatSim">Open Heat Simulator on target</button>
+        </div>
+        <p class="kb-cite" style="margin-top:12px;" data-i18n="kbCite">Numbers sourced from LWS Knowledge Base</p>
+      </div>
+
+    </div><!-- /#main-app -->
+
+    <footer>
+      <a href="https://r5tools.io" target="_blank" data-i18n="footerLink">r5tools.io</a>
+      · <span data-i18n="footerCred">Powered by the LWS Knowledge Base</span>
+    </footer>
+  </div>
+
+  <!-- ============================================================
+       Shared LWS Access Codes gate — required in every LWS_* tool
+       Docs: LWS_Access_Codes/docs/integration.md
+       ============================================================ -->
+  <script src="https://access-codes.r5tools.io/lib.js"></script>
+  <script>
+    // Gate the entire #main-app node. If unauthed, overlay + redirect to unlock page.
+    if (window.LWSAccessCodes && typeof LWSAccessCodes.gate === 'function') {
+      LWSAccessCodes.gate('main-app');
+    } else {
+      // Local-dev fallback: the access-codes CDN may be unreachable. Show a subtle
+      // banner and let the tool render for development.
+      console.warn('[capture-planner] LWSAccessCodes library not loaded — running in un-gated dev mode.');
+    }
+  </script>
+
+  <!-- ============================================================
+       i18n + local scaffolding
+       ============================================================ -->
+  <script src="static/fake-server.js"></script>
+    <script src="static/i18n.js"></script>
+  <script>
+    // ---- i18n bootstrap ----
+    LWSi18n.apply();
+    document.getElementById('langToggle').addEventListener('click', function () {
+      LWSi18n.toggle();
+      renderCapacity();  // re-render slot titles etc.
+    });
+
+    // ---- KB constants -------------------------------------------------------
+    // Every specific number MUST cite a KB article via wikilink comment.
+
+    var MAX_CITIES = 6;              // KB: [[06-season-2-frozen]] 6 cities per alliance
+    var MAX_DIGS = 4;                // KB: [[06-season-2-frozen]] 4 dig sites per alliance
+    var CAPTURES_PER_DAY = 2;        // KB: [[06-season-2-frozen]] 2 captures/day max
+    var PROTECTION_HOURS = 36;       // KB: [[06-season-2-frozen]] 36-hour post-capture protection (dig sites)
+                                     // NOTE: cities cited as "~6 days" in KB; treat as separate constant when we
+                                     // distinguish. v0.1 uses 36h uniformly for the countdown UI.
+
+    // City heat bonus by level. KB: [[06-season-2-frozen]] L1 +5°C -> L6 +60°C in +11°C increments.
+    // L2-L5 values are INTERPOLATED (KB flags interior levels as inferred; only L1/L6 sourced).
+    var CITY_HEAT_BY_LEVEL = {
+      1: 5,   // KB: [[06-season-2-frozen]] cited
+      2: 16,  // interpolated — KB open question #8
+      3: 27,  // interpolated — KB open question #8
+      4: 38,  // interpolated — KB open question #8
+      5: 49,  // interpolated — KB open question #8
+      6: 60,  // KB: [[06-season-2-frozen]] cited
+    };
+
+    // City Rare Soil / hr by level. Same interpolation caveat as CITY_HEAT_BY_LEVEL.
+    var CITY_SOIL_PER_HR = {
+      1: 350,   // KB: [[06-season-2-frozen]]
+      2: 480,   // interpolated
+      3: 610,   // interpolated
+      4: 740,   // interpolated
+      5: 870,   // interpolated
+      6: 1000,  // KB: [[06-season-2-frozen]]
+    };
+
+    // ---- state --------------------------------------------------------------
+    // Mock data for the scaffold pass. Real data comes from roster CSV + candidate paste.
+
+    var state = {
+      captured: {
+        cities: [],    // {level, x, y, capturedAt}
+        digs: [],
+      },
+      capturesToday: 0,
+      candidates: [
+        // Placeholder mock candidates so the UI has something to render.
+        { type: 'dig',  x: 118, y: 122, targetLevel: 1, notes: 'first capture — required L1 dig' },
+        { type: 'city', x: 115, y: 125, targetLevel: 6, notes: 'closest L6 candidate to hive' },
+        { type: 'city', x: 130, y: 118, targetLevel: 5, notes: 'covers exposed R1 cluster east' },
+        { type: 'dig',  x: 112, y: 128, targetLevel: 3, notes: 'coal producer, adjacent to first dig' },
+      ],
+      roster: null,   // CSV rows once loaded
+    };
+
+    // ---- capacity slots -----------------------------------------------------
+
+    function renderCapacity() {
+      var citySlots = document.getElementById('citySlots');
+      var digSlots = document.getElementById('digSlots');
+      citySlots.innerHTML = '';
+      digSlots.innerHTML = '';
+      for (var i = 0; i < MAX_CITIES; i++) {
+        var el = document.createElement('div');
+        el.className = 'slot' + (i < state.captured.cities.length ? ' filled' : '');
+        el.textContent = i < state.captured.cities.length
+          ? ('L' + (state.captured.cities[i].level || '?'))
+          : '—';
+        citySlots.appendChild(el);
+      }
+      for (var j = 0; j < MAX_DIGS; j++) {
+        var e2 = document.createElement('div');
+        e2.className = 'slot' + (j < state.captured.digs.length ? ' filled dig' : '');
+        e2.textContent = j < state.captured.digs.length
+          ? ('L' + (state.captured.digs[j].level || '?'))
+          : '—';
+        digSlots.appendChild(e2);
+      }
+      document.getElementById('capturesToday').textContent = String(state.capturesToday);
+    }
+
+    // ---- queue --------------------------------------------------------------
+
+    function renderQueue(ranked) {
+      var rows = ranked || state.candidates.map(function (c, i) {
+        return {
+          ...c,
+          priority_score: 100 - i,
+          heat_delta_c: c.type === 'city' ? CITY_HEAT_BY_LEVEL[c.targetLevel] : null,
+          soil_per_hr: c.type === 'city' ? CITY_SOIL_PER_HR[c.targetLevel] : null,
+          unlock: (c.type === 'city' && c.targetLevel === 6) ? 'W3 D6+12h' : 'W1 D3+12h',
+        };
+      });
+
+      var empty = document.getElementById('queueEmpty');
+      var table = document.getElementById('queueTable');
+      var body = document.getElementById('queueBody');
+
+      if (!rows.length) {
+        empty.style.display = '';
+        table.style.display = 'none';
+        return;
+      }
+      empty.style.display = 'none';
+      table.style.display = '';
+      body.innerHTML = rows.map(function (r) {
+        var typeLabel = r.type === 'city' ? LWSi18n.t('typeCity') : LWSi18n.t('typeDig');
+        return '<tr>'
+          + '<td class="num">' + (r.priority_score != null ? r.priority_score : '—') + '</td>'
+          + '<td class="type-' + r.type + '">' + typeLabel + '</td>'
+          + '<td class="coord">(' + r.x + ', ' + r.y + ')</td>'
+          + '<td class="num">L' + r.targetLevel + '</td>'
+          + '<td class="num">' + (r.heat_delta_c != null ? '+' + r.heat_delta_c + '°C' : '—') + '</td>'
+          + '<td class="num">' + (r.soil_per_hr != null ? r.soil_per_hr : '—') + '</td>'
+          + '<td>' + (r.unlock || '—') + '</td>'
+          + '<td style="color:var(--text-mute);font-size:12px;">' + (r.notes || '') + '</td>'
+          + '</tr>';
+      }).join('');
+    }
+
+    // ---- protection timers --------------------------------------------------
+
+    function renderProtection() {
+      var list = document.getElementById('protectionList');
+      var empty = document.getElementById('protectionEmpty');
+      var all = state.captured.cities.concat(state.captured.digs);
+      if (!all.length) {
+        empty.style.display = '';
+        list.innerHTML = '';
+        return;
+      }
+      empty.style.display = 'none';
+      list.innerHTML = all.map(function (t) {
+        var expiryMs = t.capturedAt + PROTECTION_HOURS * 3600 * 1000;
+        var remainingMs = expiryMs - Date.now();
+        var hours = Math.floor(remainingMs / 3600 / 1000);
+        var expired = remainingMs <= 0;
+        var expiringSoon = !expired && hours < 4;
+        var cls = expired ? 'expired' : (expiringSoon ? 'expiring-soon' : '');
+        var countdownCls = expired ? 'error' : (expiringSoon ? 'warn' : '');
+        var text = expired
+          ? LWSi18n.t('protectionExpired')
+          : LWSi18n.t('protectionExpires') + ' ' + hours + 'h';
+        return '<div class="protection-item ' + cls + '">'
+          + '<span class="coord">(' + t.x + ', ' + t.y + ')</span>'
+          + '<span style="color:var(--text-dim);font-size:12px;">L' + t.level + ' ' + (t.type || '') + '</span>'
+          + '<span class="countdown ' + countdownCls + '">' + text + '</span>'
+          + '</div>';
+      }).join('');
+    }
+
+    // ---- button handlers (stubbed) -----------------------------------------
+
+    document.getElementById('btnRank').addEventListener('click', function () {
+      // Call /api/rank — stubbed on the server side in v0.1.
+      fetch('/api/rank', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          candidates: state.candidates,
+          hiveCenter: { x: +document.getElementById('hiveX').value, y: +document.getElementById('hiveY').value },
+          week: +document.getElementById('weekSel').value,
+          day: +document.getElementById('daySel').value,
+          roster: state.roster,
+        }),
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          renderQueue(data.ranked || []);
+          if (data.warnings && data.warnings.length) console.warn('[rank]', data.warnings);
+        })
+        .catch(function (e) {
+          console.error('[rank] failed', e);
+        });
+    });
+
+    document.getElementById('btnImportRoster').addEventListener('click', function () {
+      // TODO(v0.2): file picker + CSV parse (reuse Alliance_Hive_Grid_Manager format).
+      alert('TODO: roster CSV import — same columns as Alliance_Hive_Grid_Manager/hive_members_export.csv');
+    });
+
+    document.getElementById('btnImportCandidates').addEventListener('click', function () {
+      // TODO(v0.2): textarea paste + parse.
+      alert('TODO: candidate paste (format: type,x,y,targetLevel)');
+    });
+
+    document.getElementById('btnAddCandidate').addEventListener('click', function () {
+      var line = prompt('type,x,y,targetLevel (e.g. city,120,120,6)');
+      if (!line) return;
+      var parts = line.split(',').map(function (s) { return s.trim(); });
+      if (parts.length < 4) return;
+      state.candidates.push({
+        type: parts[0], x: +parts[1], y: +parts[2], targetLevel: +parts[3], notes: 'manual add',
+      });
+      renderQueue();
+    });
+
+    document.getElementById('btnExportPng').addEventListener('click', function () {
+      renderCapturePng();
+    });
+
+    // Discord-ready 1600×900 dark-theme snapshot of the capture queue + capacity.
+    // Matches shared palette (LWS_Access_Codes / _Season_Timeline / _Coal_Burn_Calculator / _Freeze_Risk_Dashboard).
+    function renderCapturePng() {
+      var W = 1600, H = 900;
+      var canvas = document.createElement('canvas');
+      canvas.width = W; canvas.height = H;
+      var ctx = canvas.getContext('2d');
+
+      var C = {
+        bg: '#0a0e1a', panel: '#0d1424', panel2: '#12192c',
+        border: 'rgba(255,255,255,0.10)',
+        accent: '#c9a961', text: '#e6e8ee', textDim: '#a8b0c0', textMut: '#7a8290',
+        city: '#7ac8e0', dig: '#b98ae0', good: '#8ae0a3',
+      };
+
+      ctx.fillStyle = C.bg; ctx.fillRect(0, 0, W, H);
+
+      // Header
+      ctx.fillStyle = C.panel; ctx.fillRect(0, 0, W, 80);
+      ctx.strokeStyle = C.border; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(0, 80); ctx.lineTo(W, 80); ctx.stroke();
+      ctx.fillStyle = C.accent; ctx.textBaseline = 'middle';
+      ctx.font = '600 14px system-ui, -apple-system, sans-serif';
+      ctx.fillText('R5TOOLS.IO · CITY / DIG-SITE CAPTURE PLANNER', 40, 40);
+      ctx.fillStyle = C.textDim; ctx.font = '400 13px system-ui, sans-serif';
+      ctx.textAlign = 'right';
+      var citiesUsed = state.captured.cities.length, digsUsed = state.captured.digs.length;
+      ctx.fillText('Cities ' + citiesUsed + '/6 · Dig-sites ' + digsUsed + '/4 · Today ' + state.capturesToday + '/2', W - 40, 40);
+      ctx.textAlign = 'left';
+
+      // Capacity slots row
+      var capY = 120, slotW = 60, slotGap = 10;
+      ctx.fillStyle = C.textMut; ctx.font = '500 12px system-ui, sans-serif';
+      ctx.fillText('CITIES', 40, capY + 22);
+      var cx0 = 130;
+      for (var i = 0; i < 6; i++) {
+        var filled = i < state.captured.cities.length;
+        var lvl = filled ? state.captured.cities[i].level : null;
+        ctx.fillStyle = filled ? C.city : C.panel2;
+        ctx.fillRect(cx0 + i * (slotW + slotGap), capY, slotW, 40);
+        ctx.strokeStyle = C.border; ctx.strokeRect(cx0 + i * (slotW + slotGap), capY, slotW, 40);
+        if (filled) {
+          ctx.fillStyle = C.bg; ctx.font = '600 14px ui-monospace, monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText('L' + (lvl || '?'), cx0 + i * (slotW + slotGap) + slotW / 2, capY + 22);
+        }
+      }
+      ctx.fillStyle = C.textMut; ctx.font = '500 12px system-ui, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText('DIG-SITES', 610, capY + 22);
+      var dx0 = 720;
+      for (var j = 0; j < 4; j++) {
+        var filledD = j < state.captured.digs.length;
+        var lvlD = filledD ? state.captured.digs[j].level : null;
+        ctx.fillStyle = filledD ? C.dig : C.panel2;
+        ctx.fillRect(dx0 + j * (slotW + slotGap), capY, slotW, 40);
+        ctx.strokeStyle = C.border; ctx.strokeRect(dx0 + j * (slotW + slotGap), capY, slotW, 40);
+        if (filledD) {
+          ctx.fillStyle = C.bg; ctx.font = '600 14px ui-monospace, monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText('L' + (lvlD || '?'), dx0 + j * (slotW + slotGap) + slotW / 2, capY + 22);
+        }
+      }
+      ctx.textAlign = 'left';
+
+      // Priority queue title + week-4 blizzard warning
+      ctx.fillStyle = C.accent; ctx.font = '600 14px system-ui, sans-serif';
+      ctx.fillText('PRIORITY QUEUE', 40, 210);
+      ctx.fillStyle = C.textMut; ctx.font = '400 12px system-ui, sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText('KB: [[06-season-2-frozen]] · 6 cities + 4 dig-sites max · 2 captures/day · 36h post-capture protection',
+                   W - 40, 210);
+      ctx.textAlign = 'left';
+
+      // Queue table
+      var tableY = 240, tableH = H - 240 - 60;
+      ctx.fillStyle = C.panel; ctx.fillRect(40, tableY, W - 80, tableH);
+      ctx.strokeStyle = C.border; ctx.strokeRect(40, tableY, W - 80, tableH);
+
+      var cols = [
+        { label: '#',            x: 60,   w: 40,  align: 'center' },
+        { label: 'TYPE',         x: 110,  w: 90,  align: 'left' },
+        { label: 'TARGET LVL',   x: 210,  w: 130, align: 'center' },
+        { label: 'COORD',        x: 350,  w: 200, align: 'left' },
+        { label: 'HEAT BONUS',   x: 560,  w: 200, align: 'right' },
+        { label: 'SOIL/HR',      x: 770,  w: 200, align: 'right' },
+        { label: 'NOTES',        x: 980,  w: 540, align: 'left' },
+      ];
+      ctx.fillStyle = C.accent; ctx.font = '600 12px system-ui, sans-serif';
+      cols.forEach(function (col) {
+        ctx.textAlign = col.align;
+        var tx = col.align === 'right' ? col.x + col.w : (col.align === 'center' ? col.x + col.w / 2 : col.x);
+        ctx.fillText(col.label, tx, tableY + 28);
+      });
+      ctx.strokeStyle = C.border; ctx.beginPath();
+      ctx.moveTo(60, tableY + 44); ctx.lineTo(W - 60, tableY + 44); ctx.stroke();
+
+      var rowH = 32, rowY0 = tableY + 60;
+      var maxRows = Math.floor((tableH - 70) / rowH);
+      var shown = state.candidates.slice(0, maxRows);
+      shown.forEach(function (c, i) {
+        var y = rowY0 + i * rowH + 16;
+        // Priority number
+        ctx.textAlign = 'center'; ctx.fillStyle = C.textMut;
+        ctx.font = '600 13px ui-monospace, monospace';
+        ctx.fillText(String(i + 1), cols[0].x + cols[0].w / 2, y);
+        // Type pill
+        ctx.textAlign = 'left';
+        var isCity = c.type === 'city';
+        ctx.fillStyle = isCity ? C.city : C.dig;
+        ctx.fillRect(cols[1].x, y - 10, 70, 20);
+        ctx.fillStyle = C.bg; ctx.font = '600 11px system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(isCity ? 'CITY' : 'DIG', cols[1].x + 35, y);
+        // Target level
+        ctx.fillStyle = C.text; ctx.font = '500 13px ui-monospace, monospace';
+        ctx.fillText('L' + (c.targetLevel || '?'), cols[2].x + cols[2].w / 2, y);
+        // Coord
+        ctx.textAlign = 'left'; ctx.fillStyle = C.textDim;
+        ctx.font = '500 12px ui-monospace, monospace';
+        ctx.fillText('(' + c.x + ', ' + c.y + ')', cols[3].x, y);
+        // Heat bonus (only for cities — KB curve +5 L1 → +60 L6)
+        ctx.textAlign = 'right';
+        if (isCity && typeof CITY_HEAT_BY_LEVEL !== 'undefined' && CITY_HEAT_BY_LEVEL[c.targetLevel] != null) {
+          ctx.fillStyle = C.good; ctx.font = '600 12px ui-monospace, monospace';
+          ctx.fillText('+' + CITY_HEAT_BY_LEVEL[c.targetLevel] + '°C', cols[4].x + cols[4].w, y);
+        } else {
+          ctx.fillStyle = C.textMut; ctx.fillText('—', cols[4].x + cols[4].w, y);
+        }
+        // Soil / hr (cities only)
+        if (isCity && typeof CITY_SOIL_PER_HR !== 'undefined' && CITY_SOIL_PER_HR[c.targetLevel] != null) {
+          ctx.fillStyle = C.textDim; ctx.font = '500 12px ui-monospace, monospace';
+          ctx.fillText(CITY_SOIL_PER_HR[c.targetLevel].toLocaleString(), cols[5].x + cols[5].w, y);
+        } else {
+          ctx.fillStyle = C.textMut; ctx.fillText('—', cols[5].x + cols[5].w, y);
+        }
+        // Notes
+        ctx.textAlign = 'left'; ctx.fillStyle = C.textMut;
+        ctx.font = '400 12px system-ui, sans-serif';
+        var notes = (c.notes || '').slice(0, 80);
+        ctx.fillText(notes, cols[6].x, y);
+      });
+      if (state.candidates.length > shown.length) {
+        ctx.fillStyle = C.textMut; ctx.font = '400 11px system-ui, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText('+ ' + (state.candidates.length - shown.length) + ' more', 60, tableY + tableH - 20);
+      }
+      if (state.candidates.length === 0) {
+        ctx.fillStyle = C.textMut; ctx.font = '400 14px system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Queue empty — add candidates to see them here.', W / 2, tableY + tableH / 2);
+      }
+
+      // Footer
+      ctx.fillStyle = C.textMut; ctx.font = '400 12px system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('r5tools.io · City / Dig-Site Capture Planner · ' + new Date().toISOString().slice(0, 10),
+                   W / 2, H - 30);
+      ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+
+      canvas.toBlob(function (blob) {
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'city-capture-plan-' + new Date().toISOString().slice(0, 10) + '.png';
+        document.body.appendChild(a); a.click(); a.remove();
+        URL.revokeObjectURL(url);
+      }, 'image/png');
+    }
+
+    document.getElementById('btnExportCsv').addEventListener('click', function () {
+      var header = 'priority,type,x,y,target_level,heat_delta_c,soil_per_hr,notes\n';
+      var body = state.candidates.map(function (c, i) {
+        var heat = c.type === 'city' ? CITY_HEAT_BY_LEVEL[c.targetLevel] : '';
+        var soil = c.type === 'city' ? CITY_SOIL_PER_HR[c.targetLevel] : '';
+        return [100 - i, c.type, c.x, c.y, c.targetLevel, heat, soil, (c.notes || '').replace(/,/g, ';')].join(',');
+      }).join('\n');
+      downloadBlob(header + body, 'capture-queue.csv', 'text/csv');
+    });
+
+    document.getElementById('btnExportJson').addEventListener('click', function () {
+      var payload = {
+        exported_at: new Date().toISOString(),
+        source: 'LWS_City_Capture_Planner',
+        version: '0.1.0-scaffold',
+        candidates: state.candidates,
+        captured: state.captured,
+      };
+      downloadBlob(JSON.stringify(payload, null, 2), 'capture-queue.json', 'application/json');
+    });
+
+    document.getElementById('btnCopyDiscord').addEventListener('click', function () {
+      var lines = state.candidates.map(function (c, i) {
+        var t = c.type === 'city' ? LWSi18n.t('typeCity') : LWSi18n.t('typeDig');
+        return (i + 1) + '. ' + t + ' L' + c.targetLevel + ' @ (' + c.x + ', ' + c.y + ')';
+      }).join('\n');
+      navigator.clipboard.writeText(lines).then(function () {
+        alert('Copied ' + state.candidates.length + ' lines to clipboard.');
+      });
+    });
+
+    document.getElementById('btnHeatSim').addEventListener('click', function () {
+      // Cross-tool link. Heat Simulator subdomain TBD.
+      var first = state.candidates[0];
+      if (!first) { alert('No candidate selected.'); return; }
+      window.open('https://heat.r5tools.io/?x=' + first.x + '&y=' + first.y, '_blank');
+    });
+
+    function downloadBlob(text, filename, mime) {
+      var blob = new Blob([text], { type: mime });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // ---- boot ---------------------------------------------------------------
+
+    renderCapacity();
+    renderQueue();
+    renderProtection();
+
+    // Tick protection countdowns every 60s
+    setInterval(renderProtection, 60 * 1000);
+  </script>
+</body>
+</html>
