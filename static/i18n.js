@@ -99,6 +99,60 @@
       // ---- gate messages ----
       gateLoading: 'Checking access…',
       gateBlocked: 'This tool requires an Alliance Access Code. Unlocking…',
+
+      // ---- S1 Crimson Plague (no-content fallback, i18n-keyed) ----
+      s1FallbackTitle: "City capture doesn't apply to Season 1 Crimson Plague",
+      s1FallbackBody: 'Season 1 is Doomsday-cycle PvE on the Land of Fog and Rain — cities reset with the weekly Doomsday cycle and there is no per-alliance capture cap. Switch to Season 2, 3, 4, 5, or 6 above to use the planner.',
+
+      // ---- S3 Golden Kingdom ----
+      s3Lede: 'Season 3 Golden Kingdom — 8 cities + 8 Digging Strongholds per alliance on the 13×13 desert map. Spice 100/hr (L1 Village) → 600/hr (L6 Square of Judgment). Spice Wars Wed/Sat W4-8, up to 30% plunder cap.',
+      s3AcRangeWarn: 'AC range gate: every base must stay inside 5-tile Alliance Center range or Large Sandworms teleport it out (Sandworm Crisis W1-2).',
+      s3SpiceWarsBanner: 'Spice Wars overlay — Wed/Sat W4-8. Capitol +10M Spice, Cannon +5M Spice, up to 30% plunder cap.',
+      s3DigPriority: 'Prioritize Digging Strongholds — Mithril fuels Desert Protectors during Spice Wars.',
+      thSpicePerHr: 'Spice/hr',
+      s3PyramidWar: 'W4D6: Pyramid War begins (Capitol/Great Pyramid contestable, delayed +36h).',
+
+      // ---- S4 Evernight Isle ----
+      s4Lede: 'Season 4 Evernight Isle — 6 cities + 6 Digging Strongholds per alliance (24 total cities L1-L6 on the map). Copper 100/hr (L1) → 600/hr (L6). 11-tile min spacing between neighboring Alliance Centers.',
+      s4BloodNightWarn: 'Blood Night Descend: 3× daily at 02:30 / 10:30 / 18:30 server (30 min each). Drains +18k power/min. Do NOT capture during blood-night windows.',
+      s4CopperWarsWarn: 'Copper Wars — Wed/Sat W4-7, 8 rounds. 24h declaration window per round. Max 3 attackers per target, 15% plunder cap per round.',
+      s4DigPriority: 'Digging Strongholds produce Stone (100-200/hr). Prioritize for Optoelectronic Lab + Lighthouse upgrades.',
+      thCopperPerHr: 'Copper/hr',
+      s4AcSpacingWarn: 'AC 11-tile spacing rule — verify your Alliance Center is at least 11 tiles from neighboring alliance ACs.',
+
+      // ---- S5 Wild West (Bank mode) ----
+      s5Title: 'Bank Stronghold Capture Planner',
+      s5Lede: 'Season 5 Wild West — 2 Bank captures/day on Wed+Sat only. Default 4 Bank max, +1 per city controlled up to 12 max. Sundays are Truce Day.',
+      s5CapacityBanks: 'Banks captured',
+      s5CapacityBanksHelp: 'Max 4 Banks (default) → up to 12 with 8 cities controlled',
+      s5CapacityDeposits: 'CrystalGold deposits',
+      s5CapacityDepositsHelp: '3 deposits/day, up to 15 simultaneous (5-day terms)',
+      s5WarWindowWarn: 'War windows: Wed + Sat only. 3 fixed war slots/day (1h each, 7h apart). Alliance Safe Time disables 1 slot for 7-15h.',
+      s5TruceDayWarn: 'Sunday = Truce Day. No Bank captures.',
+      s5UnlockL1: 'L1-6 Banks — Week 1',
+      s5UnlockL7: 'L7-10 Banks — Week 4 (L10 requires 39,900 Virus Resistance)',
+      s5HighNoon: 'High Noon: 15,000 CrystalGold/day cap from W3',
+      s5InterestUnknown: 'Interest rate: unpublished (KB open question)',
+      thCrystalgoldInterest: 'CG interest',
+      s5NoProtection: 'Next war window',
+      s5NoProtectionEmpty: 'No captures yet. Next Wed/Sat war window shows here.',
+
+      // ---- S6 Shadow Rainforest (Altar mode) ----
+      s6Title: 'Altar Conquest Planner',
+      s6Lede: 'Season 6 Shadow Rainforest — 5 Altars in the Great River central zone. Hold max 3 simultaneously. Open Tuesdays only.',
+      s6AltarCobra: 'Cobra Altar — Recruiter role → Cobra Barrier (alliance shield)',
+      s6AltarEcho: 'Echo Altar — Muse role → Night Army summon',
+      s6AltarGust: 'Gust Altar — Warlord role → Serpent Breath (contamination attack)',
+      s6AltarFeather: 'Feather Altar — Butler role → Feather Lightning strike',
+      s6AltarTreehaven: 'Treehaven Altar — Alliance Leader role → Reset skill cooldowns',
+      s6MaxHeldBadge: 'Max 3 held simultaneously',
+      s6TuesdayWarn: 'Altars open TUESDAYS ONLY. Unoccupied = highest progress at timer end wins. Occupied = exactly 100% completion required.',
+      s6SteppingStoneWarn: 'Altars CANNOT be used as stepping stones — they are isolated capturable nodes only.',
+      s6SanctuaryWarn: 'Sanctuary timer buffed to 20 min (of 60-min attack window). Plan around it.',
+      s6CityDestructionWarn: 'S6 city captures are PERMANENT. Attacker +50% IP, defender -100% IP. Destroyed cities don\'t count vs your cap.',
+      s6PactHint: 'Same-faction alliances: 7-day pacts, 200 members, prevent City Destruction.',
+      thAllianceSkill: 'Alliance Skill',
+      s6NextWindow: 'Next Tuesday altar window',
     },
 
     ko: {
@@ -176,6 +230,60 @@
 
       gateLoading: '접근 권한 확인 중…',
       gateBlocked: '이 도구는 연맹 액세스 코드가 필요합니다. 잠금 해제 중…',
+
+      // ---- S1 Crimson Plague (no-content fallback) ----
+      s1FallbackTitle: '도시 점령은 시즌 1 크림슨 페스트에는 적용되지 않습니다',
+      s1FallbackBody: '시즌 1은 안개와 비의 땅에서 진행되는 둠스데이 사이클 PvE입니다 — 도시는 주간 둠스데이 사이클과 함께 리셋되며 연맹당 점령 제한이 없습니다. 시즌 2, 3, 4, 5, 6으로 전환하여 플래너를 사용하세요.',
+
+      // ---- S3 Golden Kingdom ----
+      s3Lede: '시즌 3 골든 킹덤 — 13×13 사막 맵에서 연맹당 도시 8개 + 발굴 요새 8개. 스파이스 시간당 100 (L1 마을) → 600 (L6 심판의 광장). 스파이스 워: 수/토 4~8주차, 최대 약탈 30%.',
+      s3AcRangeWarn: 'AC 범위 경고: 모든 기지는 연맹 센터 5칸 반경 내에 있어야 합니다. 벗어나면 샌드웜 크라이시스(1~2주차)에 텔레포트됩니다.',
+      s3SpiceWarsBanner: '스파이스 워 오버레이 — 수/토 4~8주차. 캐피톨 +1000만 스파이스, 대포 +500만, 최대 30% 약탈.',
+      s3DigPriority: '발굴 요새 우선 — 미스릴로 스파이스 워 중 사막 수호자를 유지하세요.',
+      thSpicePerHr: '스파이스/시간',
+      s3PyramidWar: '4주 6일차: 피라미드 전쟁 시작 (캐피톨/대피라미드 쟁탈, +36시간 지연).',
+
+      // ---- S4 Evernight Isle ----
+      s4Lede: '시즌 4 에버나이트 아일 — 연맹당 도시 6개 + 발굴 요새 6개 (맵 전체 도시 24개, L1~L6). 구리 시간당 100 (L1) → 600 (L6). 연맹 센터 간 최소 11칸 간격.',
+      s4BloodNightWarn: '블러드 나이트 강림: 서버 시간 02:30 / 10:30 / 18:30 일일 3회 (각 30분). 전투력 분당 18,000 소모. 블러드 나이트 창 중에는 점령 금지.',
+      s4CopperWarsWarn: '구리 전쟁 — 수/토 4~7주차, 총 8라운드. 라운드당 24시간 선언 창. 대상당 공격자 최대 3명, 라운드당 약탈 15% 상한.',
+      s4DigPriority: '발굴 요새는 석재 생산 (시간당 100-200). 옵토일렉트로닉 랩 + 등대 업그레이드용으로 우선 확보.',
+      thCopperPerHr: '구리/시간',
+      s4AcSpacingWarn: 'AC 11칸 간격 규칙 — 이웃 연맹 AC로부터 11칸 이상 떨어져 있는지 확인하세요.',
+
+      // ---- S5 Wild West (Bank mode) ----
+      s5Title: '은행 요새 점령 플래너',
+      s5Lede: '시즌 5 와일드 웨스트 — 수/토에만 하루 은행 2개 점령. 기본 최대 4개, 도시 1개당 +1 최대 12개. 일요일은 휴전일.',
+      s5CapacityBanks: '점령한 은행',
+      s5CapacityBanksHelp: '기본 최대 4개 → 도시 8개 보유 시 최대 12개',
+      s5CapacityDeposits: '크리스탈골드 예치',
+      s5CapacityDepositsHelp: '일일 3회 예치, 최대 15개 동시 (각 5일 만기)',
+      s5WarWindowWarn: '전쟁 창: 수/토만. 하루 3개 고정 슬롯 (각 1시간, 7시간 간격). 연맹 세이프 타임은 1개 슬롯을 7~15시간 무효화합니다.',
+      s5TruceDayWarn: '일요일 = 휴전일. 은행 점령 불가.',
+      s5UnlockL1: 'L1~6 은행 — 1주차',
+      s5UnlockL7: 'L7~10 은행 — 4주차 (L10은 바이러스 저항력 39,900 필요)',
+      s5HighNoon: '하이눈: 3주차부터 하루 크리스탈골드 15,000 상한',
+      s5InterestUnknown: '이자율: 미공개 (KB 미해결 질문)',
+      thCrystalgoldInterest: 'CG 이자',
+      s5NoProtection: '다음 전쟁 창',
+      s5NoProtectionEmpty: '점령 없음. 다음 수/토 전쟁 창이 여기 표시됩니다.',
+
+      // ---- S6 Shadow Rainforest (Altar mode) ----
+      s6Title: '제단 정복 플래너',
+      s6Lede: '시즌 6 섀도우 레인포레스트 — 그레이트 리버 중앙 지대에 제단 5개. 동시 최대 3개 보유. 화요일에만 개방.',
+      s6AltarCobra: '코브라 제단 — 리크루터 역할 → 코브라 배리어 (연맹 방패)',
+      s6AltarEcho: '에코 제단 — 뮤즈 역할 → 밤의 군단 소환',
+      s6AltarGust: '거스트 제단 — 워로드 역할 → 서펜트 브레스 (오염 공격)',
+      s6AltarFeather: '페더 제단 — 버틀러 역할 → 페더 라이트닝 스트라이크',
+      s6AltarTreehaven: '트리헤이븐 제단 — 연맹장 역할 → 스킬 쿨다운 초기화',
+      s6MaxHeldBadge: '동시 최대 3개 보유',
+      s6TuesdayWarn: '제단은 화요일에만 개방. 미점거 = 타이머 종료 시 진행률 최고 승리. 점거 상태 = 정확히 100% 완료 필요.',
+      s6SteppingStoneWarn: '제단은 디딤돌로 사용 불가 — 독립된 점령 노드입니다.',
+      s6SanctuaryWarn: '성역 타이머 20분으로 강화 (60분 공격 창 중). 계획에 반영하세요.',
+      s6CityDestructionWarn: '시즌 6 도시 점령은 영구적. 공격자 IP +50%, 방어자 IP -100%. 파괴된 도시는 상한에 포함되지 않음.',
+      s6PactHint: '동일 진영 연맹: 7일 협정, 최대 200명, 도시 파괴 방지.',
+      thAllianceSkill: '연맹 스킬',
+      s6NextWindow: '다음 화요일 제단 창',
     },
   };
 

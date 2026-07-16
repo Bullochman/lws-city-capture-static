@@ -38,11 +38,15 @@
     <div id="main-app">
 
       <!-- Season-agnostic banner: shown when the current season has no city-capture mechanic.
-           When populated, hides #season-city-panel below. -->
+           When populated, hides all mode panels below. -->
       <div class="card" id="season-fallback-banner" style="display:none;border-left:3px solid #c9a961;">
         <h2 id="fallbackTitle">City capture doesn't apply this season</h2>
         <p class="kb-cite" id="fallbackBody">This tool is built around Season 2's city + dig-site capture mechanic. Switch the warzone / season selector above to a season with city captures (S2 Polar Storm, S3 Golden Kingdom, S4 Evernight Isle) to use the planner.</p>
       </div>
+
+      <!-- Per-season warning stack (rendered above the primary mode panel).
+           Populated by renderSeasonWarnings() from the season's warning key list. -->
+      <div id="seasonWarningStack"></div>
 
       <div id="season-city-panel">
       <div class="card">
@@ -176,6 +180,123 @@
 
       </div><!-- /#season-city-panel -->
 
+      <!-- ============================================================
+           S5 Wild West — BANK MODE panel (hidden by default).
+           Toggled by applyMechanicsConfig() when supported.mode === 'bank'.
+           KB: [[07-future-seasons]] §S5 Bank Strongholds — 2/day Wed+Sat,
+           default 4 max +1/city up to 12, Sundays truce, 3 war slots/day.
+           ============================================================ -->
+      <div id="season-bank-panel" style="display:none;">
+        <div class="card">
+          <h1 data-i18n="s5Title">Bank Stronghold Capture Planner</h1>
+          <p class="lede" data-i18n="s5Lede">
+            Season 5 Wild West — 2 Bank captures/day on Wed+Sat only. Default 4 Bank max, +1 per city controlled up to 12 max. Sundays are Truce Day.
+          </p>
+
+          <div class="capacity-grid">
+            <div class="capacity-block">
+              <p class="capacity-title" data-i18n="s5CapacityBanks">Banks captured</p>
+              <div class="capacity-slots" id="bankSlots"></div>
+              <p class="kb-cite" data-i18n="s5CapacityBanksHelp">Max 4 Banks (default) → up to 12 with 8 cities controlled</p>
+            </div>
+            <div class="capacity-block">
+              <p class="capacity-title" data-i18n="s5CapacityDeposits">CrystalGold deposits</p>
+              <div class="capacity-slots" id="depositSlots"></div>
+              <p class="kb-cite" data-i18n="s5CapacityDepositsHelp">3 deposits/day, up to 15 simultaneous (5-day terms)</p>
+            </div>
+          </div>
+
+          <div class="capture-counter">
+            <span><span data-i18n="captureCounterLabel">Captures used today</span>: <strong id="bankCapturesToday">0</strong> <span data-i18n="s5UnlockL1">L1-6 Banks — Week 1</span></span>
+            <span class="kb-cite">KB: <a href="#" title="[[07-future-seasons]]">07-future-seasons (S5)</a> — 2/day Wed+Sat</span>
+          </div>
+
+          <p class="kb-cite" style="margin-top:12px;" data-i18n="s5HighNoon">High Noon: 15,000 CrystalGold/day cap from W3</p>
+          <p class="kb-cite" data-i18n="s5UnlockL7">L7-10 Banks — Week 4 (L10 requires 39,900 Virus Resistance)</p>
+          <p class="kb-cite" data-i18n="s5InterestUnknown">Interest rate: unpublished (KB open question)</p>
+        </div>
+
+        <div class="card">
+          <h2 data-i18n="s5NoProtection">Next war window</h2>
+          <div id="bankWarWindow" style="color:var(--text-mute);font-size:13px;padding:16px 0;" data-i18n="s5NoProtectionEmpty">
+            No captures yet. Next Wed/Sat war window shows here.
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 data-i18n="rosterHeading">Alliance roster</h2>
+          <div style="color:var(--text-mute);font-size:13px;padding:16px 0;" data-i18n="rosterEmpty">
+            No roster loaded. Upload your alliance CSV (same format as Hive Grid Manager).
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Export</h2>
+          <div class="btn-row">
+            <button class="btn" id="btnBankExportPng" data-i18n="exportPng">Export PNG roadmap</button>
+            <button class="btn secondary" id="btnBankExportCsv" data-i18n="exportCsv">Export CSV queue</button>
+          </div>
+        </div>
+      </div><!-- /#season-bank-panel -->
+
+      <!-- ============================================================
+           S6 Shadow Rainforest — ALTAR MODE panel (hidden by default).
+           Toggled by applyMechanicsConfig() when supported.mode === 'altar'.
+           KB: [[07-future-seasons]] §S6 Altars — 5 altars, hold max 3,
+           Tuesdays only, 100% required if occupied, no stepping stones.
+           ============================================================ -->
+      <div id="season-altar-panel" style="display:none;">
+        <div class="card">
+          <h1 data-i18n="s6Title">Altar Conquest Planner</h1>
+          <p class="lede" data-i18n="s6Lede">
+            Season 6 Shadow Rainforest — 5 Altars in the Great River central zone. Hold max 3 simultaneously. Open Tuesdays only.
+          </p>
+
+          <div class="capture-counter">
+            <span><strong data-i18n="s6MaxHeldBadge">Max 3 held simultaneously</strong></span>
+            <span class="kb-cite">KB: <a href="#" title="[[07-future-seasons]]">07-future-seasons (S6)</a> — 5 altars · Tuesdays</span>
+          </div>
+
+          <table class="queue-table" style="margin-top:16px;">
+            <thead>
+              <tr>
+                <th data-i18n="thType">Type</th>
+                <th data-i18n="thAllianceSkill">Alliance Skill</th>
+              </tr>
+            </thead>
+            <tbody id="altarList">
+              <tr><td data-i18n="s6AltarCobra">Cobra Altar</td><td>Cobra Barrier (alliance shield)</td></tr>
+              <tr><td data-i18n="s6AltarEcho">Echo Altar</td><td>Night Army summon</td></tr>
+              <tr><td data-i18n="s6AltarGust">Gust Altar</td><td>Serpent Breath (contamination)</td></tr>
+              <tr><td data-i18n="s6AltarFeather">Feather Altar</td><td>Feather Lightning strike</td></tr>
+              <tr><td data-i18n="s6AltarTreehaven">Treehaven Altar</td><td>Reset skill cooldowns</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <h2 data-i18n="s6NextWindow">Next Tuesday altar window</h2>
+          <div id="altarNextWindow" style="color:var(--text-mute);font-size:13px;padding:16px 0;">
+            Altars open every Tuesday — plan your rally chain around each altar's 60-min attack window.
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 data-i18n="rosterHeading">Alliance roster</h2>
+          <div style="color:var(--text-mute);font-size:13px;padding:16px 0;" data-i18n="rosterEmpty">
+            No roster loaded. Upload your alliance CSV (same format as Hive Grid Manager).
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Export</h2>
+          <div class="btn-row">
+            <button class="btn" id="btnAltarExportPng" data-i18n="exportPng">Export PNG roadmap</button>
+            <button class="btn secondary" id="btnAltarExportCsv" data-i18n="exportCsv">Export CSV queue</button>
+          </div>
+        </div>
+      </div><!-- /#season-altar-panel -->
+
     </div><!-- /#main-app -->
 
     <footer>
@@ -251,42 +372,107 @@
     var CITY_RESOURCE_KEY = 'soil';
     var HAS_HEAT_MECHANIC = true;
 
-    // Seasons this tool supports (has city-capture-per-alliance concept).
-    // Everything else shows the fallback banner.
+    // Seasons this tool supports. Each entry declares its mode:
+    //   - 'city':   original S2/S3/S4 flow (cities + dig-sites + resource curve + optional heat)
+    //   - 'bank':   S5 Wild West Bank Stronghold planner (2/day Wed+Sat, dynamic cap, CG interest)
+    //   - 'altar':  S6 Shadow Rainforest Altar Conquest planner (5 altars, hold max 3, Tuesdays)
+    // Seasons NOT in this map fall through to the fallback banner (S1, or any future
+    // season we haven't built content for).
     var SUPPORTED_SEASONS = {
-      's2-polar-storm':      { resource: 'soil',   soil_key: 'city_rare_soil_per_hr_by_level', has_heat: true  },
-      's3-golden-kingdom':   { resource: 'spice',  soil_key: 'spice_per_hour_by_city_level',   has_heat: false },
-      's4-evernight-isle':   { resource: 'copper', soil_key: 'copper_per_hour_by_city_level',  has_heat: false }
+      's2-polar-storm':      { mode: 'city',  resource: 'soil',        soil_key: 'city_rare_soil_per_hr_by_level', has_heat: true,
+                               warning_keys: [] },
+      's3-golden-kingdom':   { mode: 'city',  resource: 'spice',       soil_key: 'spice_per_hour_by_city_level',   has_heat: false,
+                               warning_keys: ['s3AcRangeWarn', 's3SpiceWarsBanner', 's3DigPriority', 's3PyramidWar'] },
+      's4-evernight-isle':   { mode: 'city',  resource: 'copper',      soil_key: 'copper_per_hour_by_city_level',  has_heat: false,
+                               warning_keys: ['s4BloodNightWarn', 's4CopperWarsWarn', 's4DigPriority', 's4AcSpacingWarn'] },
+      's5-wild-west':        { mode: 'bank',  resource: 'crystalgold', soil_key: null,                             has_heat: false,
+                               warning_keys: ['s5WarWindowWarn', 's5TruceDayWarn'] },
+      's6-shadow-rainforest':{ mode: 'altar', resource: null,          soil_key: null,                             has_heat: false,
+                               warning_keys: ['s6TuesdayWarn', 's6SteppingStoneWarn', 's6SanctuaryWarn', 's6CityDestructionWarn', 's6PactHint'] }
     };
+
+    // Per-season lede i18n key. Fallback: 'lede' (S2 default).
+    var SEASON_LEDE_KEY = {
+      's2-polar-storm':      'lede',
+      's3-golden-kingdom':   's3Lede',
+      's4-evernight-isle':   's4Lede',
+      's5-wild-west':        's5Lede',
+      's6-shadow-rainforest':'s6Lede'
+    };
+
+    // Per-season resource column-header i18n key (city-mode only).
+    var SEASON_RESOURCE_TH_KEY = {
+      soil:   'thSoilPerHr',
+      spice:  'thSpicePerHr',
+      copper: 'thCopperPerHr'
+    };
+
+    // Render 0-N warning cards above the queue based on the season's warning_keys.
+    function renderSeasonWarnings(warningKeys) {
+      var stack = document.getElementById('seasonWarningStack');
+      if (!stack) return;
+      if (!warningKeys || !warningKeys.length) { stack.innerHTML = ''; return; }
+      stack.innerHTML = warningKeys.map(function (k) {
+        return '<div class="card" style="border-left:3px solid #c9a961;padding:12px 16px;margin-bottom:12px;">'
+             + '<p class="kb-cite" style="margin:0;color:var(--text-dim);">' + LWSi18n.t(k) + '</p>'
+             + '</div>';
+      }).join('');
+    }
 
     function applyMechanicsConfig(seasonId, mc) {
       var supported = SUPPORTED_SEASONS[seasonId];
-      var panel = document.getElementById('season-city-panel');
+      var cityPanel = document.getElementById('season-city-panel');
+      var bankPanel = document.getElementById('season-bank-panel');
+      var altarPanel = document.getElementById('season-altar-panel');
       var banner = document.getElementById('season-fallback-banner');
       var fbTitle = document.getElementById('fallbackTitle');
       var fbBody = document.getElementById('fallbackBody');
 
+      // Hide all mode panels by default; the branch below re-enables the correct one.
+      cityPanel.style.display = 'none';
+      bankPanel.style.display = 'none';
+      altarPanel.style.display = 'none';
+
       if (!supported) {
-        // Season doesn't apply → show banner, hide panel.
-        panel.style.display = 'none';
+        // Season doesn't apply → show fallback banner. Text is i18n-keyed for S1
+        // (translated) and falls back to a generic English string for any other
+        // unrecognized season id.
         banner.style.display = '';
-        var name = (window.__LWS_SEASON_NAME) || seasonId || 'this season';
-        fbTitle.textContent = 'City capture doesn’t apply to ' + name;
-        var msg = 'This tool is built around the S2/S3/S4-style "cities + dig-sites per alliance" mechanic. ';
-        if (seasonId === 's5-wild-west') {
-          msg += 'S5 Wild West replaces cities with Banks + Crystalgold deposits — see the mechanics_config bank_* / crystalgold_* keys. A separate S5 planner would be a better fit.';
-        } else if (seasonId === 's6-shadow-rainforest') {
-          msg += 'S6 Shadow Rainforest cities are permanently destructible via 4-faction warfare — Altars replace the neutral-capture flow. This tool’s protection-timer model does not translate.';
-        } else if (seasonId === 's1-crimson-plague') {
-          msg += 'S1 Crimson Plague is Doomsday-cycle PvE; there is no per-alliance city-capture allocation.';
+        renderSeasonWarnings([]);
+        if (seasonId === 's1-crimson-plague') {
+          fbTitle.textContent = LWSi18n.t('s1FallbackTitle');
+          fbBody.textContent = LWSi18n.t('s1FallbackBody');
         } else {
-          msg += 'Switch warzone/season to S2, S3, or S4 above to use the planner.';
+          var name = (window.__LWS_SEASON_NAME) || seasonId || 'this season';
+          fbTitle.textContent = 'City capture doesn’t apply to ' + name;
+          fbBody.textContent = 'This tool is built around the S2/S3/S4-style "cities + dig-sites per alliance" mechanic (and the S5 Bank / S6 Altar variants). Switch warzone/season above to use the planner.';
         }
-        fbBody.textContent = msg;
         return;
       }
       banner.style.display = 'none';
-      panel.style.display = '';
+
+      // Render per-season warning stack (0-N cards above the queue/panel).
+      renderSeasonWarnings(supported.warning_keys || []);
+
+      // Set the lede text via the per-season i18n key (falls back to S2 'lede').
+      var ledeText = document.getElementById('ledeText');
+      if (ledeText) {
+        var ledeKey = SEASON_LEDE_KEY[seasonId] || 'lede';
+        ledeText.textContent = LWSi18n.t(ledeKey);
+      }
+
+      // Mode branch: city (S2/S3/S4) vs bank (S5) vs altar (S6).
+      if (supported.mode === 'bank') {
+        bankPanel.style.display = '';
+        return; // Bank-mode uses its own DOM subtree — skip city-mode hydration.
+      }
+      if (supported.mode === 'altar') {
+        altarPanel.style.display = '';
+        return; // Altar-mode uses its own DOM subtree — skip city-mode hydration.
+      }
+
+      // ---- CITY MODE (S2/S3/S4) — original logic preserved ----
+      cityPanel.style.display = '';
 
       // Hydrate caps + curves from mc, falling back to S2 defaults if a key is
       // absent for the current season (defensive against KB gaps).
@@ -498,6 +684,32 @@
       renderCapturePng();
     });
 
+    // Bank-mode (S5) export handlers — minimal PNG + CSV so the season works end-to-end.
+    var bankPngBtn = document.getElementById('btnBankExportPng');
+    if (bankPngBtn) bankPngBtn.addEventListener('click', function () { renderModePng('bank'); });
+    var bankCsvBtn = document.getElementById('btnBankExportCsv');
+    if (bankCsvBtn) bankCsvBtn.addEventListener('click', function () {
+      var header = 'priority,bank_level,x,y,cg_interest,notes\n';
+      // Placeholder — real Bank state would come from a bank-mode candidate list.
+      downloadBlob(header, 'bank-capture-queue.csv', 'text/csv');
+    });
+
+    // Altar-mode (S6) export handlers — 5-altar list with role + granted skill.
+    var altarPngBtn = document.getElementById('btnAltarExportPng');
+    if (altarPngBtn) altarPngBtn.addEventListener('click', function () { renderModePng('altar'); });
+    var altarCsvBtn = document.getElementById('btnAltarExportCsv');
+    if (altarCsvBtn) altarCsvBtn.addEventListener('click', function () {
+      var header = 'altar_name,role,alliance_skill,held\n';
+      var body = [
+        ['Cobra',    'Recruiter',       'Cobra Barrier',           ''],
+        ['Echo',     'Muse',            'Night Army summon',        ''],
+        ['Gust',     'Warlord',         'Serpent Breath',           ''],
+        ['Feather',  'Butler',          'Feather Lightning strike', ''],
+        ['Treehaven','Alliance Leader', 'Reset skill cooldowns',    '']
+      ].map(function (r) { return r.join(','); }).join('\n');
+      downloadBlob(header + body, 'altar-conquest.csv', 'text/csv');
+    });
+
     // Discord-ready 1600×900 dark-theme snapshot of the capture queue + capacity.
     // Matches shared palette (LWS_Access_Codes / _Season_Timeline / _Coal_Burn_Calculator / _Freeze_Risk_Dashboard).
     function renderCapturePng() {
@@ -670,6 +882,84 @@
       }, 'image/png');
     }
 
+    // Minimal PNG for S5 Bank / S6 Altar modes. Full-fidelity dashboards TBD once
+    // per-mode candidate state models exist; this ships a Discord-shareable
+    // seasonal-planner card in the meantime.
+    function renderModePng(mode) {
+      var W = 1600, H = 900;
+      var canvas = document.createElement('canvas');
+      canvas.width = W; canvas.height = H;
+      var ctx = canvas.getContext('2d');
+      var C = {
+        bg: '#0a0e1a', panel: '#0d1424', panel2: '#12192c',
+        border: 'rgba(255,255,255,0.10)',
+        accent: '#c9a961', text: '#e6e8ee', textDim: '#a8b0c0', textMut: '#7a8290'
+      };
+      ctx.fillStyle = C.bg; ctx.fillRect(0, 0, W, H);
+      // Header
+      ctx.fillStyle = C.panel; ctx.fillRect(0, 0, W, 80);
+      ctx.strokeStyle = C.border; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(0, 80); ctx.lineTo(W, 80); ctx.stroke();
+      ctx.fillStyle = C.accent; ctx.textBaseline = 'middle';
+      ctx.font = '600 14px system-ui, -apple-system, sans-serif';
+      var title = mode === 'bank' ? 'R5TOOLS.IO · BANK STRONGHOLD CAPTURE PLANNER'
+                                  : 'R5TOOLS.IO · ALTAR CONQUEST PLANNER';
+      ctx.fillText(title, 40, 40);
+
+      ctx.fillStyle = C.text; ctx.font = '500 16px system-ui, sans-serif';
+      if (mode === 'bank') {
+        var lines = [
+          '2 Bank captures / day — Wed + Sat only. Sundays truce.',
+          'Default 4 Bank max, +1 per city up to 12.',
+          'L1-6 Banks — Week 1. L7-10 Banks — Week 4 (L10 needs VR 39,900).',
+          'High Noon: 15,000 CrystalGold/day cap from W3.',
+          '3 war slots/day (1h each, 7h apart). Alliance Safe Time disables 1.',
+          'CG interest rate: unpublished (KB open question).'
+        ];
+        lines.forEach(function (line, i) {
+          ctx.fillText(line, 60, 160 + i * 40);
+        });
+      } else {
+        // Altar mode — list all 5 altars + granted skills
+        var altars = [
+          ['Cobra Altar',     'Recruiter',        'Cobra Barrier (alliance shield)'],
+          ['Echo Altar',      'Muse',             'Night Army summon'],
+          ['Gust Altar',      'Warlord',          'Serpent Breath (contamination)'],
+          ['Feather Altar',   'Butler',           'Feather Lightning strike'],
+          ['Treehaven Altar', 'Alliance Leader',  'Reset skill cooldowns']
+        ];
+        ctx.fillStyle = C.textDim; ctx.font = '400 14px system-ui, sans-serif';
+        ctx.fillText('Great River central zone — 5 altars, hold max 3 simultaneously. Tuesdays only.', 60, 130);
+        altars.forEach(function (row, i) {
+          var y = 190 + i * 60;
+          ctx.fillStyle = C.accent; ctx.font = '600 16px system-ui, sans-serif';
+          ctx.fillText(row[0], 60, y);
+          ctx.fillStyle = C.textDim; ctx.font = '400 13px system-ui, sans-serif';
+          ctx.fillText(row[1] + ' role', 300, y);
+          ctx.fillStyle = C.text; ctx.font = '500 14px system-ui, sans-serif';
+          ctx.fillText('→ ' + row[2], 500, y);
+        });
+        ctx.fillStyle = C.textMut; ctx.font = '400 12px system-ui, sans-serif';
+        ctx.fillText('Sanctuary timer doubled to 20 min (of 60-min attack window). Captured cities in S6 are PERMANENT.', 60, 520);
+      }
+
+      // Footer
+      ctx.fillStyle = C.textMut; ctx.font = '400 12px system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('r5tools.io · ' + (mode === 'bank' ? 'Bank Stronghold Capture Planner' : 'Altar Conquest Planner') + ' · ' + new Date().toISOString().slice(0, 10),
+                   W / 2, H - 30);
+      ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+
+      canvas.toBlob(function (blob) {
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = (mode === 'bank' ? 'bank-capture-plan-' : 'altar-conquest-plan-') + new Date().toISOString().slice(0, 10) + '.png';
+        document.body.appendChild(a); a.click(); a.remove();
+        URL.revokeObjectURL(url);
+      }, 'image/png');
+    }
+
     document.getElementById('btnExportCsv').addEventListener('click', function () {
       // Column names include the per-season resource so downstream sheets don't mis-label S3 spice as S2 soil.
       var header = 'priority,type,x,y,target_level,heat_delta_c,' + CITY_RESOURCE_KEY + '_per_hr,notes\n';
@@ -729,9 +1019,17 @@
         window.__LWS_SEASON_NAME = (ctx.season && ctx.season.name && (ctx.season.name.en || ctx.season.name.ko)) || ctx.season_id;
         var mc = (ctx.season && ctx.season.mechanics_config) || {};
         applyMechanicsConfig(ctx.season_id, mc);
-        // Update the resource column header now that we know the season.
+        // Update the resource column header (city-mode only) via i18n key so the KR
+        // toggle switches Spice/Copper/Soil translations at the same time.
         var thRes = document.getElementById('thResourcePerHr');
-        if (thRes) thRes.textContent = CITY_RESOURCE_LABEL;
+        if (thRes) {
+          var supported = SUPPORTED_SEASONS[ctx.season_id];
+          if (supported && supported.mode === 'city') {
+            var thKey = SEASON_RESOURCE_TH_KEY[supported.resource] || 'thSoilPerHr';
+            thRes.setAttribute('data-i18n', thKey);
+            thRes.textContent = LWSi18n.t(thKey);
+          }
+        }
         renderCapacity();
         renderQueue();
         renderProtection();
