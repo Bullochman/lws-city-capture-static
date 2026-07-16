@@ -104,6 +104,11 @@
       s1FallbackTitle: "City capture doesn't apply to Season 1 Crimson Plague",
       s1FallbackBody: 'Season 1 is Doomsday-cycle PvE on the Land of Fog and Rain — cities reset with the weekly Doomsday cycle and there is no per-alliance capture cap. Switch to Season 2, 3, 4, 5, or 6 above to use the planner.',
 
+      // ---- Season 7 placeholder (unified copy — mirrored across all 6 static tools) ----
+      s7ComingTitle: 'Season 7 launches ~August 2026',
+      s7ComingBody: 'Full tool support arrives when Anthropic publishes S7 mechanics (usually 1-2 weeks before launch). Track updates at r5tools.io.',
+      s7ComingTracker: 'Track: r5tools.io',
+
       // ---- S3 Golden Kingdom ----
       s3Lede: 'Season 3 Golden Kingdom — 8 cities + 8 Digging Strongholds per alliance on the 13×13 desert map. Spice 100/hr (L1 Village) → 600/hr (L6 Square of Judgment). Spice Wars Wed/Sat W4-8, up to 30% plunder cap.',
       s3AcRangeWarn: 'AC range gate: every base must stay inside 5-tile Alliance Center range or Large Sandworms teleport it out (Sandworm Crisis W1-2).',
@@ -234,6 +239,11 @@
       // ---- S1 Crimson Plague (no-content fallback) ----
       s1FallbackTitle: '도시 점령은 시즌 1 크림슨 페스트에는 적용되지 않습니다',
       s1FallbackBody: '시즌 1은 안개와 비의 땅에서 진행되는 둠스데이 사이클 PvE입니다 — 도시는 주간 둠스데이 사이클과 함께 리셋되며 연맹당 점령 제한이 없습니다. 시즌 2, 3, 4, 5, 6으로 전환하여 플래너를 사용하세요.',
+
+      // ---- Season 7 placeholder (unified copy — mirrored across all 6 static tools) ----
+      s7ComingTitle: '시즌 7 출시 예정 — 2026년 8월경',
+      s7ComingBody: 'Anthropic이 시즌 7 메커니즘을 공개하면 (보통 출시 1-2주 전) 전체 도구 지원이 시작됩니다. 업데이트는 r5tools.io에서 확인하세요.',
+      s7ComingTracker: '추적: r5tools.io',
 
       // ---- S3 Golden Kingdom ----
       s3Lede: '시즌 3 골든 킹덤 — 13×13 사막 맵에서 연맹당 도시 8개 + 발굴 요새 8개. 스파이스 시간당 100 (L1 마을) → 600 (L6 심판의 광장). 스파이스 워: 수/토 4~8주차, 최대 약탈 30%.',

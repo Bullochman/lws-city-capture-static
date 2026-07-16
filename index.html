@@ -42,6 +42,7 @@
       <div class="card" id="season-fallback-banner" style="display:none;border-left:3px solid #c9a961;">
         <h2 id="fallbackTitle">City capture doesn't apply this season</h2>
         <p class="kb-cite" id="fallbackBody">This tool is built around Season 2's city + dig-site capture mechanic. Switch the warzone / season selector above to a season with city captures (S2 Polar Storm, S3 Golden Kingdom, S4 Evernight Isle) to use the planner.</p>
+        <p class="kb-cite" id="fallbackTracker" style="margin-top:10px;color:var(--text-dim);font-size:12px;display:none;">Track: r5tools.io</p>
       </div>
 
       <!-- Per-season warning stack (rendered above the primary mode panel).
@@ -439,13 +440,28 @@
         // unrecognized season id.
         banner.style.display = '';
         renderSeasonWarnings([]);
-        if (seasonId === 's1-crimson-plague') {
+        var fbTracker = document.getElementById('fallbackTracker');
+        // S7 branch — mechanics not yet published by Anthropic. Show the unified
+        // placeholder copy (mirrored across all 6 static tools per the season
+        // deep-fill design brief).
+        var isS7 = (seasonId === 's7-unnamed' || seasonId === 's7-tbd'
+                    || (seasonId && seasonId.indexOf('s7') === 0));
+        if (isS7) {
+          fbTitle.textContent = LWSi18n.t('s7ComingTitle');
+          fbBody.textContent = LWSi18n.t('s7ComingBody');
+          if (fbTracker) {
+            fbTracker.textContent = LWSi18n.t('s7ComingTracker');
+            fbTracker.style.display = '';
+          }
+        } else if (seasonId === 's1-crimson-plague') {
           fbTitle.textContent = LWSi18n.t('s1FallbackTitle');
           fbBody.textContent = LWSi18n.t('s1FallbackBody');
+          if (fbTracker) fbTracker.style.display = 'none';
         } else {
           var name = (window.__LWS_SEASON_NAME) || seasonId || 'this season';
           fbTitle.textContent = 'City capture doesn’t apply to ' + name;
           fbBody.textContent = 'This tool is built around the S2/S3/S4-style "cities + dig-sites per alliance" mechanic (and the S5 Bank / S6 Altar variants). Switch warzone/season above to use the planner.';
+          if (fbTracker) fbTracker.style.display = 'none';
         }
         return;
       }
