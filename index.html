@@ -170,7 +170,7 @@
       <div class="card">
         <h2>Export</h2>
         <div class="btn-row">
-          <button class="btn" id="btnExportPng" data-i18n="exportPng">Export PNG roadmap</button>
+          <button class="btn" id="btnExportPng" data-i18n="exportPng">Export PNG roadmap</button><span id="lws-discord-slot" style="display:inline-block;margin-left:6px"></span><span id="lws-discord-gear-slot" style="display:inline-block;margin-left:4px"></span>
           <button class="btn secondary" id="btnExportCsv" data-i18n="exportCsv">Export CSV queue</button>
           <button class="btn secondary" id="btnExportJson" data-i18n="exportJson">Export JSON queue</button>
           <button class="btn secondary" id="btnCopyDiscord" data-i18n="copyDiscord">Copy Discord summary</button>
@@ -326,6 +326,7 @@
        i18n + local scaffolding
        ============================================================ -->
   <script src="static/fake-server.js"></script>
+<script src="static/lws-discord.js" defer></script>
     <script src="static/i18n.js"></script>
   <script>
     // ---- i18n bootstrap ----
@@ -1075,5 +1076,6 @@
   </script>
   <script src="static/seasons-lib.js" defer></script>
   <script src="https://chat.r5tools.io/widget.js" defer></script>
+<script>window.addEventListener("DOMContentLoaded",function(){if(window.LWSDiscord&&typeof LWSDiscord.attachToButton==="function"){setTimeout(function(){LWSDiscord.attachToButton({pngBtnId:"btnExportPng",slotId:"lws-discord-slot",gearSlotId:"lws-discord-gear-slot",filename:"city-capture.png",contextText:"City Capture Plan",toolName:"City Capture Planner"});},300);}});</script>
 </body>
 </html>
