@@ -244,3 +244,23 @@ footer a { color: var(--accent); text-decoration: none; }
   .capacity-grid, .section-cols { grid-template-columns: 1fr; }
   .card { padding: var(--sp-4); }
 }
+
+/* mobile: queue table needs its own horizontal scroll.
+   Cards that DIRECTLY contain a queue-table get overflow-x auto so
+   only the table scrolls, not the whole page. */
+.card { min-width: 0; }
+.card:has(> .queue-table) {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.queue-table { min-width: 480px; }
+
+@media (max-width: 520px) {
+  body { padding: 0; }
+  .wrap { padding: 10px 8px; }
+  h1 { font-size: clamp(20px, 5.5vw, 26px); }
+  h2 { font-size: clamp(15px, 4.5vw, 20px); }
+  .card { padding: 10px 8px; }
+  .queue-table { font-size: 11px; }
+  .queue-table th, .queue-table td { padding: 5px 6px; }
+}
