@@ -30,6 +30,9 @@
       navProfile: 'Profile',
       navVsDays: 'VS Days',
       betaFeedbackPill: '🚧 BETA · Feedback',
+      capacityCitiesHelp: 'Max 6 cities per alliance',
+      capacityDigsHelp: 'Max 4 dig sites per alliance',
+      exportHeading: 'Export',
 
 
       // ---- main title / lede ----
@@ -193,6 +196,9 @@
       navProfile: '프로필',
       navVsDays: 'VS 데이',
       betaFeedbackPill: '🚧 베타 · 피드백',
+      capacityCitiesHelp: '얼라이언스당 최대 6개 도시',
+      capacityDigsHelp: '얼라이언스당 최대 4개 채굴지',
+      exportHeading: '내보내기',
 
 
       title: '도시 / 발굴지 점령 플래너',
