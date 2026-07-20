@@ -107,6 +107,62 @@
       // ---- adjacency rule note ----
       adjacencyRule: 'Rule: first capture MUST be a L1 dig site. Every subsequent capture must be adjacent to owned territory.',
 
+      // ---- unlock timeline (Gantt) ----
+      timelineHeading: 'Unlock timeline',
+      timelineHelp: 'Each city / dig-site level unlocks at a fixed offset from your warzone\'s Season 2 start. The gold marker is now (or projected if start-date not yet set).',
+      timelineStartLabel: 'Season 2 start date (server time)',
+      timelineStartHelp: 'Auto-filled from your warzone. Override if your warzone announced a different date/time.',
+      timelineNoStart: 'No season-2 start date set for this warzone yet — using today as an illustrative anchor. Set it above to lock the timeline to your server.',
+      timelineTickWeek: 'Wk',
+      timelineNow: 'NOW',
+      timelineUnlocksAt: 'unlocks',
+      timelineOpensIn: 'opens in',
+      timelineAlreadyOpen: 'already open',
+
+      // ---- resistance table ----
+      resHeading: 'Resistance targets (rally sizing)',
+      resHelp: 'Total troop power the alliance rally must project to cap out damage on the city / dig-site. Feeds the Rally Squad Recommender below.',
+      resThLevel: 'Level',
+      resThName: 'Name',
+      resThResistance: 'Resistance',
+      resThHeat: 'Heat bonus',
+      resThUnlock: 'Unlock',
+      resL1Name: 'L1 Village',
+      resL2Name: 'L2 Town',
+      resL3Name: 'L3 City',
+      resL4Name: 'L4 City',
+      resL5Name: 'L5 City',
+      resL6Name: 'L6 City',
+      resL7Name: 'L7 Capitol',
+      resUnknown: 'unpublished',
+
+      // ---- cadence tracker ----
+      cadenceHeading: 'Capture cadence',
+      cadenceCitiesLeft: 'Cities open',
+      cadenceCitiesLeftSub: 'until 6-city cap',
+      cadenceDigsLeft: 'Dig sites open',
+      cadenceDigsLeftSub: 'until 4-dig cap',
+      cadenceTodayLeft: 'Captures left today',
+      cadenceTodayLeftSub: 'alliance is capped at 2 stronghold + 2 city declarations / day',
+      cadenceAllFull: 'CAP HIT',
+      cadenceNoneToday: 'DAY DONE',
+
+      // ---- rally squad recommender ----
+      rallyHeading: 'Rally squad recommender',
+      rallyHelp: 'Paste your alliance top-10 (or however many) members\' power values, one per line (name,power  or just power). Tool suggests smallest squad that meets each level\'s resistance.',
+      rallyExamplePlaceholder: 'Kayla,142000000\nEvan,138500000\nJohn,120000000\nRony,115000000\n... (one per line)',
+      rallyLevelPickerLabel: 'Target level',
+      rallyResultHeading: 'Suggested squad',
+      rallyIncluded: 'included',
+      rallyOfTarget: 'of target',
+      rallyMet: 'target MET',
+      rallyShort: 'target SHORT',
+      rallyNoRoster: 'Paste roster above and click "Suggest squad" to see the recommended lineup for each level.',
+      rallyBtnSuggest: 'Suggest squad',
+      rallyRosterCount: 'members loaded',
+      rallyEmptyRoster: 'No members parsed. One per line, format: name,power (comma-separated) or just power number.',
+      rallyAllLevelsHeading: 'Recommended squads (all unlocked levels)',
+
       // ---- KB citation ----
       kbCite: 'Numbers sourced from LWS Knowledge Base',
 
@@ -263,6 +319,62 @@
       unlockL7: 'L7 (수도급) — 4주 7일차+12h',
 
       adjacencyRule: '규칙: 첫 번째 점령은 반드시 L1 채굴장이어야 합니다. 이후 모든 점령은 소유 영토에 인접해야 합니다.',
+
+      // ---- unlock timeline (Gantt) ----
+      timelineHeading: '개방 타임라인',
+      timelineHelp: '각 도시 / 채굴장 레벨은 워존의 시즌 2 시작 시각에서 고정된 오프셋으로 개방됩니다. 금색 마커는 현재 (또는 시작일이 아직 설정되지 않은 경우 예상 위치)입니다.',
+      timelineStartLabel: '시즌 2 시작 (서버 시간)',
+      timelineStartHelp: '워존에서 자동 입력됩니다. 다른 날짜/시간이 발표되었으면 재정의하세요.',
+      timelineNoStart: '이 워존의 시즌 2 시작 날짜가 아직 설정되지 않았습니다 — 참고용으로 오늘을 기준점으로 사용합니다. 위에서 설정하여 서버에 맞게 고정하세요.',
+      timelineTickWeek: '주',
+      timelineNow: '지금',
+      timelineUnlocksAt: '개방',
+      timelineOpensIn: '개방까지',
+      timelineAlreadyOpen: '이미 개방됨',
+
+      // ---- resistance table ----
+      resHeading: '저항력 목표 (집결 규모)',
+      resHelp: '도시 / 채굴장에 최대 피해를 주기 위해 연맹 집결이 투사해야 할 총 병력 전투력. 아래의 집결 스쿼드 추천기에 입력됩니다.',
+      resThLevel: '레벨',
+      resThName: '이름',
+      resThResistance: '저항력',
+      resThHeat: '온도 보너스',
+      resThUnlock: '개방',
+      resL1Name: 'L1 마을',
+      resL2Name: 'L2 도시',
+      resL3Name: 'L3 도시',
+      resL4Name: 'L4 도시',
+      resL5Name: 'L5 도시',
+      resL6Name: 'L6 도시',
+      resL7Name: 'L7 수도',
+      resUnknown: '미공개',
+
+      // ---- cadence tracker ----
+      cadenceHeading: '점령 케이던스',
+      cadenceCitiesLeft: '가능한 도시',
+      cadenceCitiesLeftSub: '6개 상한까지',
+      cadenceDigsLeft: '가능한 채굴장',
+      cadenceDigsLeftSub: '4개 상한까지',
+      cadenceTodayLeft: '오늘 남은 점령',
+      cadenceTodayLeftSub: '연맹 상한: 요새 2회 + 도시 선언 2회 / 일',
+      cadenceAllFull: '상한 도달',
+      cadenceNoneToday: '오늘 종료',
+
+      // ---- rally squad recommender ----
+      rallyHeading: '집결 스쿼드 추천',
+      rallyHelp: '연맹 상위 10명(또는 원하는 수)의 전투력을 한 줄에 하나씩 붙여넣으세요 (이름,전투력 또는 전투력만). 각 레벨 저항력을 충족하는 최소 스쿼드를 제안합니다.',
+      rallyExamplePlaceholder: '카일라,142000000\n에반,138500000\n존,120000000\n로니,115000000\n... (한 줄에 하나씩)',
+      rallyLevelPickerLabel: '목표 레벨',
+      rallyResultHeading: '추천 스쿼드',
+      rallyIncluded: '포함',
+      rallyOfTarget: '목표 대비',
+      rallyMet: '목표 달성',
+      rallyShort: '목표 미달',
+      rallyNoRoster: '위에 명단을 붙여넣고 "스쿼드 제안"을 클릭하면 각 레벨별 추천 라인업이 표시됩니다.',
+      rallyBtnSuggest: '스쿼드 제안',
+      rallyRosterCount: '명 로드됨',
+      rallyEmptyRoster: '파싱된 인원이 없습니다. 한 줄에 하나씩, 형식: 이름,전투력 (쉼표 구분) 또는 전투력 숫자만.',
+      rallyAllLevelsHeading: '추천 스쿼드 (개방된 모든 레벨)',
 
       kbCite: 'LWS 지식 베이스 출처',
 

@@ -95,13 +95,15 @@
         "protection_hours": 36,
         "city_heat_bonus_c_by_level": { "1": 5, "2": 16, "3": 27, "4": 38, "5": 49, "6": 60 },
         "city_rare_soil_per_hr_by_level": { "1": 350, "2": 480, "3": 620, "4": 760, "5": 880, "6": 1000 },
+        "city_resistance_by_level": { "1": 3500, "2": 6000, "3": 8000, "4": 9500, "5": 10000, "6": 10500, "7": null },
         "city_unlock_schedule": [
-          { "level": 1, "week": 1, "day": 3, "hour": 12 },
-          { "level": 2, "week": 1, "day": 6 },
-          { "level": 3, "week": 2, "day": 3 },
-          { "level": 4, "week": 2, "day": 6 },
-          { "level": 5, "week": 3, "day": 3 },
-          { "level": 6, "week": 3, "day": 6 }
+          { "level": 1, "week": 1, "day": 3, "hour": 12, "abs_hour": 60,  "verification": "high",   "note": "L1 Village — triple-verified" },
+          { "level": 2, "week": 1, "day": 6, "hour": 12, "abs_hour": 132, "verification": "high",   "note": "L2 Town — triple-verified" },
+          { "level": 3, "week": 2, "day": 3, "hour": 12, "abs_hour": 228, "verification": "medium", "note": "single-sourced to lastwartutorial.com" },
+          { "level": 4, "week": 2, "day": 6, "hour": 12, "abs_hour": 300, "verification": "medium", "note": "single-sourced" },
+          { "level": 5, "week": 3, "day": 3, "hour": 12, "abs_hour": 396, "verification": "medium", "note": "single-sourced" },
+          { "level": 6, "week": 3, "day": 6, "hour": 12, "abs_hour": 468, "verification": "medium", "note": "single-sourced" },
+          { "level": 7, "week": 4, "day": 7, "hour": 12, "abs_hour": 588, "verification": "high",   "note": "L7 Capitol — triple-verified. Nuclear Furnace mission Day 6, delayed 36h → activation Day 7 +12h." }
         ],
         "wanderer_coal_reward_l180": 200000
       },

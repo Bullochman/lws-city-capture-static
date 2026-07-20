@@ -124,6 +124,102 @@
         </div>
       </div>
 
+      <!-- =========================================================
+           UNLOCK TIMELINE (Gantt-style horizontal) — visualizes each
+           level's unlock day/hour relative to the warzone's Season 2
+           start date. Falls back to a today-anchored preview if no
+           start date is set for the current warzone.
+           ========================================================= -->
+      <div class="card">
+        <h2 data-i18n="timelineHeading">Unlock timeline</h2>
+        <p class="kb-cite" data-i18n="timelineHelp">Each city / dig-site level unlocks at a fixed offset from your warzone's Season 2 start. The gold marker is now (or projected if start-date not yet set).</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-top:12px;">
+          <label style="display:flex;flex-direction:column;gap:4px;">
+            <span style="color:var(--text-dim);font-size:11px;text-transform:uppercase;letter-spacing:.06em;" data-i18n="timelineStartLabel">Season 2 start date (server time)</span>
+            <input type="datetime-local" id="tlSeasonStart" style="padding:6px;background:var(--panel-2);color:var(--text);border:1px solid var(--border);border-radius:4px;font-family:var(--mono);font-size:12px;min-width:220px" />
+          </label>
+          <span class="kb-cite" data-i18n="timelineStartHelp" style="max-width:340px;">Auto-filled from your warzone. Override if your warzone announced a different date/time.</span>
+        </div>
+        <div id="tlNoStart" class="timeline-note" data-i18n="timelineNoStart" style="display:none;">
+          No season-2 start date set for this warzone yet — using today as an illustrative anchor. Set it above to lock the timeline to your server.
+        </div>
+        <div class="timeline-wrap" id="tlWrap">
+          <div class="timeline-track" id="tlTrack"></div>
+        </div>
+      </div>
+
+      <!-- =========================================================
+           RESISTANCE TABLE — one row per level with resistance target,
+           unlock time, heat bonus. Feeds the Rally Squad Recommender.
+           ========================================================= -->
+      <div class="card">
+        <h2 data-i18n="resHeading">Resistance targets (rally sizing)</h2>
+        <p class="kb-cite" data-i18n="resHelp">Total troop power the alliance rally must project to cap out damage on the city / dig-site.</p>
+        <div style="overflow-x:auto;">
+          <table class="res-table" id="resTable">
+            <thead>
+              <tr>
+                <th data-i18n="resThLevel">Level</th>
+                <th data-i18n="resThName">Name</th>
+                <th style="text-align:right;" data-i18n="resThResistance">Resistance</th>
+                <th style="text-align:right;" data-i18n="resThHeat">Heat bonus</th>
+                <th data-i18n="resThUnlock">Unlock</th>
+              </tr>
+            </thead>
+            <tbody id="resBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- =========================================================
+           CADENCE TRACKER — 3-tile grid showing cities-open,
+           digs-open, captures-left-today. All derived from state +
+           mechanics_config caps.
+           ========================================================= -->
+      <div class="card">
+        <h2 data-i18n="cadenceHeading">Capture cadence</h2>
+        <div class="cadence-grid">
+          <div class="cadence-tile" id="cadenceCitiesTile">
+            <p class="cadence-label" data-i18n="cadenceCitiesLeft">Cities open</p>
+            <p class="cadence-value"><span id="cadenceCitiesLeftN">6</span><span class="of"> / 6</span></p>
+            <p class="cadence-sub" data-i18n="cadenceCitiesLeftSub">until 6-city cap</p>
+          </div>
+          <div class="cadence-tile" id="cadenceDigsTile">
+            <p class="cadence-label" data-i18n="cadenceDigsLeft">Dig sites open</p>
+            <p class="cadence-value"><span id="cadenceDigsLeftN">4</span><span class="of"> / 4</span></p>
+            <p class="cadence-sub" data-i18n="cadenceDigsLeftSub">until 4-dig cap</p>
+          </div>
+          <div class="cadence-tile" id="cadenceTodayTile">
+            <p class="cadence-label" data-i18n="cadenceTodayLeft">Captures left today</p>
+            <p class="cadence-value"><span id="cadenceTodayLeftN">2</span><span class="of"> / 2</span></p>
+            <p class="cadence-sub" data-i18n="cadenceTodayLeftSub">alliance is capped at 2 stronghold + 2 city declarations / day</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- =========================================================
+           RALLY SQUAD RECOMMENDER — user pastes top-N members'
+           power, tool sums greedy-largest until it meets each
+           level's resistance. Shows one squad per unlocked level.
+           ========================================================= -->
+      <div class="card">
+        <h2 data-i18n="rallyHeading">Rally squad recommender</h2>
+        <p class="kb-cite" data-i18n="rallyHelp">Paste your alliance top-10 (or however many) members' power values, one per line (name,power or just power). Tool suggests the smallest squad that meets each level's resistance.</p>
+        <div class="rally-input-row">
+          <div>
+            <textarea id="rallyRoster" class="rally-textarea" data-i18n-placeholder="rallyExamplePlaceholder" placeholder="Kayla,142000000&#10;Evan,138500000&#10;..."></textarea>
+            <p class="rally-help"><span id="rallyRosterCount">0</span> <span data-i18n="rallyRosterCount">members loaded</span></p>
+            <button class="btn" id="btnRallySuggest" data-i18n="rallyBtnSuggest">Suggest squad</button>
+          </div>
+          <div>
+            <p style="color:var(--text-dim);font-size:12px;margin:0 0 8px;" data-i18n="rallyAllLevelsHeading">Recommended squads (all unlocked levels)</p>
+            <div id="rallyResults">
+              <p class="rally-help" data-i18n="rallyNoRoster">Paste roster above and click "Suggest squad" to see the recommended lineup for each level.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="card">
         <h2 data-i18n="queueHeading">Priority queue</h2>
         <div id="queueEmpty" style="color:var(--text-mute);font-size:13px;padding:24px 0;text-align:center;" data-i18n="queueEmpty">
@@ -337,6 +433,9 @@
     document.getElementById('langToggle').addEventListener('click', function () {
       LWSi18n.toggle();
       renderCapacity();  // re-render slot titles etc.
+      try { renderResistanceTable(); } catch (e) {}
+      try { renderTimeline(); } catch (e) {}
+      try { renderRally(); } catch (e) {}
     });
 
     // ---- Season-driven mechanics config -------------------------------------
@@ -364,14 +463,24 @@
     var PROTECTION_HOURS = 36;       // KB default: 36-hour post-capture protection (dig sites)
     var CITY_HEAT_BY_LEVEL = { 1:5, 2:16, 3:27, 4:38, 5:49, 6:60 };  // S2 default
     var CITY_SOIL_PER_HR   = { 1:350, 2:480, 3:610, 4:740, 5:870, 6:1000 }; // S2 default
+    // S2 city / dig-site resistance targets per level. L7 is Capitol — resistance not published in the KB
+    // (owner's guide has ??? on L7). null = show "unpublished" in the UI. KB: [[06-season-2-frozen]]
+    // + Evan's photographed guide (LWS_Season_Timeline/data/season2-strategy-tips.json).
+    var CITY_RESISTANCE = { 1:3500, 2:6000, 3:8000, 4:9500, 5:10000, 6:10500, 7:null };
     var CITY_UNLOCK_SCHEDULE = [
-      { level: 1, week: 1, day: 3, hour: 12 },
-      { level: 2, week: 1, day: 6 },
-      { level: 3, week: 2, day: 3 },
-      { level: 4, week: 2, day: 6 },
-      { level: 5, week: 3, day: 3 },
-      { level: 6, week: 3, day: 6 }
+      // abs_hour = hours from Season 2 start; day/hour are the human-friendly "Wk N Day M +12h" form.
+      { level: 1, week: 1, day: 3, hour: 12, abs_hour: 60  },
+      { level: 2, week: 1, day: 6, hour: 12, abs_hour: 132 },
+      { level: 3, week: 2, day: 3, hour: 12, abs_hour: 228 },
+      { level: 4, week: 2, day: 6, hour: 12, abs_hour: 300 },
+      { level: 5, week: 3, day: 3, hour: 12, abs_hour: 396 },
+      { level: 6, week: 3, day: 6, hour: 12, abs_hour: 468 },
+      // L7 Capitol: Nuclear Furnace mission Day 6, delayed 36h → effective activation Day 7 +12h.
+      { level: 7, week: 4, day: 7, hour: 12, abs_hour: 588 }
     ];
+    // Warzone-scoped Season 2 start date (ISO string, UTC or with offset). Hydrated by bootFromSeasons()
+    // from the warzone selector; user can override in the timeline card.
+    var SEASON_START_ISO = null;
     // Per-season resource axis: "soil" (S2), "spice" (S3), "copper" (S4), or null.
     var CITY_RESOURCE_LABEL = 'Soil/hr';
     var CITY_RESOURCE_KEY = 'soil';
@@ -504,7 +613,18 @@
       CITY_HEAT_BY_LEVEL = mc.city_heat_bonus_c_by_level || {};
       HAS_HEAT_MECHANIC = supported.has_heat && !!mc.city_heat_bonus_c_by_level;
       CITY_SOIL_PER_HR = mc[supported.soil_key] || {};
-      CITY_UNLOCK_SCHEDULE = mc.city_unlock_schedule || [];
+      CITY_UNLOCK_SCHEDULE = (mc.city_unlock_schedule || []).map(function (row) {
+        // Backfill abs_hour if the season JSON omits it, so the Gantt timeline can render.
+        // abs_hour = ((week-1)*7 + (day-1))*24 + hour  (Wk1 Day1 00:00 = hour 0)
+        if (row.abs_hour == null && row.week && row.day) {
+          row = Object.assign({}, row, {
+            abs_hour: ((row.week - 1) * 7 + (row.day - 1)) * 24 + (row.hour || 0)
+          });
+        }
+        return row;
+      });
+      // Resistance: hydrate from mc if provided (defensive — some seasons may not have it), else keep default.
+      if (mc.city_resistance_by_level) CITY_RESISTANCE = mc.city_resistance_by_level;
       CITY_RESOURCE_KEY = supported.resource;
       CITY_RESOURCE_LABEL = ({ soil: 'Soil/hr', spice: 'Spice/hr', copper: 'Copper/hr' })[supported.resource];
 
@@ -538,6 +658,11 @@
           ul.innerHTML = '<li style="color:var(--text-mute)">No unlock schedule declared for this season</li>';
         }
       }
+
+      // Re-render dependent components that consume the mechanics config.
+      try { renderResistanceTable(); } catch (e) { console.warn('[capture] resistance render', e); }
+      try { renderCadence(); } catch (e) { console.warn('[capture] cadence render', e); }
+      try { renderTimeline(); } catch (e) { console.warn('[capture] timeline render', e); }
     }
 
     // ---- state --------------------------------------------------------------
@@ -654,6 +779,330 @@
           + '</div>';
       }).join('');
     }
+
+    // ---- unlock timeline (Gantt-style) --------------------------------------
+
+    function getSeasonStartMs() {
+      if (SEASON_START_ISO) {
+        var t = Date.parse(SEASON_START_ISO);
+        if (!isNaN(t)) return t;
+      }
+      return null;
+    }
+
+    function formatDeltaHrs(hrs) {
+      var absH = Math.abs(hrs);
+      if (absH < 24) return Math.round(absH) + 'h';
+      var d = Math.floor(absH / 24);
+      var h = Math.round(absH - d * 24);
+      return d + 'd ' + h + 'h';
+    }
+
+    function renderTimeline() {
+      var track = document.getElementById('tlTrack');
+      var noStartBanner = document.getElementById('tlNoStart');
+      if (!track) return;
+      track.innerHTML = '';
+
+      var schedule = (CITY_UNLOCK_SCHEDULE || []).slice().sort(function (a, b) {
+        return (a.abs_hour || 0) - (b.abs_hour || 0);
+      });
+      if (!schedule.length) {
+        track.innerHTML = '<p class="rally-help" style="padding:20px;">No unlock schedule for this season.</p>';
+        return;
+      }
+
+      // Timeline spans from 0h to just past the last unlock (round up to nearest week boundary).
+      var maxAbsHour = schedule[schedule.length - 1].abs_hour || 0;
+      var trackHours = Math.max(672, Math.ceil((maxAbsHour + 24) / 168) * 168); // at least 4 weeks
+      var startMs = getSeasonStartMs();
+      var usingFallback = false;
+      if (!startMs) {
+        // Fallback: anchor to today at 00:00 local so the "now" marker sits at the left edge.
+        startMs = new Date().setHours(0, 0, 0, 0);
+        usingFallback = true;
+      }
+      if (noStartBanner) noStartBanner.style.display = usingFallback ? '' : 'none';
+
+      // Week ticks along the bottom axis.
+      var axis = document.createElement('div');
+      axis.className = 'timeline-axis';
+      track.appendChild(axis);
+      var weeks = Math.ceil(trackHours / 168);
+      for (var w = 0; w <= weeks; w++) {
+        var pct = (w * 168) / trackHours * 100;
+        var tick = document.createElement('div');
+        tick.className = 'timeline-axis-tick';
+        tick.style.left = pct + '%';
+        axis.appendChild(tick);
+        var lbl = document.createElement('div');
+        lbl.className = 'timeline-axis-label';
+        lbl.style.left = pct + '%';
+        lbl.textContent = LWSi18n.t('timelineTickWeek') + (w + 1);
+        axis.appendChild(lbl);
+      }
+
+      // "Now" marker (relative to season start).
+      var nowHours = (Date.now() - startMs) / 3600 / 1000;
+      if (nowHours >= 0 && nowHours <= trackHours) {
+        var nowEl = document.createElement('div');
+        nowEl.className = 'timeline-now';
+        nowEl.style.left = (nowHours / trackHours * 100) + '%';
+        track.appendChild(nowEl);
+      }
+
+      // Bars, one per level.
+      var rowH = 30, topY = 12;
+      schedule.forEach(function (row, i) {
+        var absH = row.abs_hour || 0;
+        var startPct = (absH / trackHours) * 100;
+        var pastCurrent = nowHours >= absH;
+
+        var bar = document.createElement('div');
+        bar.className = 'timeline-bar level-' + row.level + (pastCurrent ? ' past' : ' future');
+        bar.style.left = startPct + '%';
+        bar.style.top = (topY + i * rowH) + 'px';
+        // Bar spans a small visual width — anchor is the unlock instant.
+        bar.style.width = 'calc(' + Math.max(0, 100 - startPct) + '% - 4px)';
+        bar.style.maxWidth = '260px';
+        bar.textContent = 'L' + row.level + ' — Wk' + row.week + ' D' + row.day + (row.hour ? '+' + row.hour + 'h' : '');
+        bar.title = 'L' + row.level + ' unlock: hour ' + absH + ' (Wk' + row.week + ' D' + row.day + '+' + (row.hour || 0) + 'h)';
+        track.appendChild(bar);
+
+        // Remaining-time label under the bar.
+        var remain = document.createElement('div');
+        remain.className = 'timeline-bar-remain';
+        remain.style.left = startPct + '%';
+        remain.style.top = (topY + i * rowH + 22) + 'px';
+        if (pastCurrent) {
+          remain.textContent = LWSi18n.t('timelineAlreadyOpen');
+        } else {
+          remain.textContent = LWSi18n.t('timelineOpensIn') + ' ' + formatDeltaHrs(absH - nowHours);
+        }
+        track.appendChild(remain);
+      });
+
+      // Height the track so all bars fit.
+      track.style.height = (topY + schedule.length * rowH + 32) + 'px';
+    }
+
+    // ---- resistance table ---------------------------------------------------
+
+    var RES_NAME_KEYS = { 1:'resL1Name', 2:'resL2Name', 3:'resL3Name', 4:'resL4Name', 5:'resL5Name', 6:'resL6Name', 7:'resL7Name' };
+
+    function renderResistanceTable() {
+      var body = document.getElementById('resBody');
+      if (!body) return;
+      // Rows: one per level in the current unlock schedule (typically L1-L6 or L1-L7 for S2).
+      var scheduleByLevel = {};
+      (CITY_UNLOCK_SCHEDULE || []).forEach(function (r) { scheduleByLevel[r.level] = r; });
+      var levels = Object.keys(CITY_RESISTANCE || {}).map(Number).sort(function (a, b) { return a - b; });
+      body.innerHTML = levels.map(function (lvl) {
+        var r = scheduleByLevel[lvl];
+        var unlockLabel = r
+          ? ('Wk' + r.week + ' D' + r.day + (r.hour ? '+' + r.hour + 'h' : ''))
+          : '—';
+        var res = CITY_RESISTANCE[lvl];
+        var resLabel = (res == null) ? ('<em style="color:var(--text-mute)">' + LWSi18n.t('resUnknown') + '</em>') : res.toLocaleString();
+        var heat = CITY_HEAT_BY_LEVEL[lvl];
+        var heatLabel = (HAS_HEAT_MECHANIC && heat != null) ? ('+' + heat + '°C') : '—';
+        var nameKey = RES_NAME_KEYS[lvl];
+        var nameLabel = nameKey ? LWSi18n.t(nameKey) : ('L' + lvl);
+        return '<tr class="level-' + lvl + '">'
+          + '<td class="level-badge">L' + lvl + '</td>'
+          + '<td>' + nameLabel + '</td>'
+          + '<td class="num">' + resLabel + '</td>'
+          + '<td class="num">' + heatLabel + '</td>'
+          + '<td style="color:var(--text-dim);font-family:var(--mono);font-size:12px;">' + unlockLabel + '</td>'
+          + '</tr>';
+      }).join('');
+    }
+
+    // ---- cadence tracker ----------------------------------------------------
+
+    function renderCadence() {
+      var citiesUsed = state.captured.cities.length;
+      var digsUsed = state.captured.digs.length;
+      var citiesLeft = Math.max(0, MAX_CITIES - citiesUsed);
+      var digsLeft = Math.max(0, MAX_DIGS - digsUsed);
+      var todayLeft = Math.max(0, CAPTURES_PER_DAY - state.capturesToday);
+
+      var cn = document.getElementById('cadenceCitiesLeftN');
+      var dn = document.getElementById('cadenceDigsLeftN');
+      var tn = document.getElementById('cadenceTodayLeftN');
+      if (cn) cn.textContent = String(citiesLeft);
+      if (dn) dn.textContent = String(digsLeft);
+      if (tn) tn.textContent = String(todayLeft);
+
+      // Update the "/ MAX" denominators (visible span.of).
+      function setDenom(id, max) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        var of = el.querySelector('.of');
+        if (of) of.textContent = ' / ' + max;
+      }
+      var citiesTile = document.getElementById('cadenceCitiesTile');
+      var digsTile = document.getElementById('cadenceDigsTile');
+      var todayTile = document.getElementById('cadenceTodayTile');
+      if (citiesTile) setDenom(citiesTile.querySelector('.cadence-value').id ? citiesTile.querySelector('.cadence-value').id : '', MAX_CITIES);
+      // Simpler: rewrite the .of span directly per tile.
+      [
+        [citiesTile, MAX_CITIES],
+        [digsTile, MAX_DIGS],
+        [todayTile, CAPTURES_PER_DAY]
+      ].forEach(function (pair) {
+        if (!pair[0]) return;
+        var of = pair[0].querySelector('.of');
+        if (of) of.textContent = ' / ' + pair[1];
+      });
+
+      // Color state: green when plenty of room, warn when 1 left, error when 0.
+      function setTileState(tile, left) {
+        if (!tile) return;
+        tile.classList.remove('warn', 'error', 'ok');
+        if (left <= 0) tile.classList.add('error');
+        else if (left === 1) tile.classList.add('warn');
+        else tile.classList.add('ok');
+      }
+      setTileState(citiesTile, citiesLeft);
+      setTileState(digsTile, digsLeft);
+      setTileState(todayTile, todayLeft);
+    }
+
+    // ---- rally squad recommender --------------------------------------------
+
+    function parseRallyRoster(text) {
+      // Accepts "name,power" or "power" per line. Whitespace + trailing commas tolerated.
+      // Power can include commas or 'M' / 'B' suffixes (e.g. "142M", "1.4B").
+      var out = [];
+      (text || '').split(/\r?\n/).forEach(function (line) {
+        var s = line.trim();
+        if (!s || s[0] === '#') return;
+        var parts = s.split(',');
+        var name, powStr;
+        if (parts.length >= 2) {
+          name = parts[0].trim();
+          powStr = parts.slice(1).join(',').trim();
+        } else {
+          name = 'Member ' + (out.length + 1);
+          powStr = parts[0].trim();
+        }
+        // Handle M/B suffix
+        var mult = 1;
+        var last = powStr.slice(-1).toUpperCase();
+        if (last === 'M') { mult = 1e6; powStr = powStr.slice(0, -1); }
+        else if (last === 'B') { mult = 1e9; powStr = powStr.slice(0, -1); }
+        else if (last === 'K') { mult = 1e3; powStr = powStr.slice(0, -1); }
+        // Strip commas and spaces inside the number
+        var n = parseFloat(powStr.replace(/[,\s]/g, ''));
+        if (isNaN(n) || n <= 0) return;
+        out.push({ name: name, power: Math.round(n * mult) });
+      });
+      return out;
+    }
+
+    function suggestSquadForResistance(roster, targetResistance) {
+      // Resistance in-game is compared to total troop power projected in a rally.
+      // Community rule-of-thumb: 1 point of resistance ≈ 1 troop power point at the
+      // rally-target scale used by S2 cities. We greedy-pick largest members first
+      // until sum >= targetResistance. Returns { squad, total, met }.
+      if (!roster || !roster.length || !targetResistance) {
+        return { squad: [], total: 0, met: false };
+      }
+      var sorted = roster.slice().sort(function (a, b) { return b.power - a.power; });
+      var picked = [], total = 0;
+      for (var i = 0; i < sorted.length; i++) {
+        picked.push(sorted[i]);
+        total += sorted[i].power;
+        if (total >= targetResistance) break;
+      }
+      return { squad: picked, total: total, met: total >= targetResistance };
+    }
+
+    function fmtPower(n) {
+      if (n >= 1e9) return (n / 1e9).toFixed(2) + 'B';
+      if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+      if (n >= 1e3) return (n / 1e3).toFixed(0) + 'K';
+      return String(n);
+    }
+
+    function renderRally() {
+      var textarea = document.getElementById('rallyRoster');
+      var countEl = document.getElementById('rallyRosterCount');
+      var results = document.getElementById('rallyResults');
+      if (!textarea || !results) return;
+
+      var roster = parseRallyRoster(textarea.value);
+      if (countEl) countEl.textContent = String(roster.length);
+
+      if (!roster.length) {
+        results.innerHTML = '<p class="rally-help">' + LWSi18n.t('rallyEmptyRoster') + '</p>';
+        return;
+      }
+
+      // One card per level with a known resistance; sort ascending so smallest first.
+      var levels = Object.keys(CITY_RESISTANCE || {}).map(Number).filter(function (lvl) {
+        return CITY_RESISTANCE[lvl] != null;
+      }).sort(function (a, b) { return a - b; });
+
+      results.innerHTML = levels.map(function (lvl) {
+        var target = CITY_RESISTANCE[lvl];
+        var suggestion = suggestSquadForResistance(roster, target);
+        var lines = suggestion.squad.map(function (m) {
+          return '<li><span>' + escapeHtml(m.name) + '</span><span class="power">' + fmtPower(m.power) + '</span></li>';
+        }).join('');
+        var summaryClass = suggestion.met ? 'ok' : 'short';
+        var summaryLabel = suggestion.met ? LWSi18n.t('rallyMet') : LWSi18n.t('rallyShort');
+        return '<div class="rally-result-card">'
+          + '<div class="rally-result-header">'
+          +   '<span class="rally-level">L' + lvl + ' · ' + LWSi18n.t(RES_NAME_KEYS[lvl] || 'resThLevel') + '</span>'
+          +   '<span class="rally-target">' + LWSi18n.t('resThResistance') + ': ' + target.toLocaleString() + '</span>'
+          + '</div>'
+          + '<ul class="rally-members-list">' + lines + '</ul>'
+          + '<div class="rally-summary">'
+          +   '<span>' + suggestion.squad.length + ' ' + LWSi18n.t('rallyIncluded') + ' · ' + fmtPower(suggestion.total) + '</span>'
+          +   '<span class="' + summaryClass + '">' + summaryLabel + ' (' + Math.round(suggestion.total / target * 100) + '% ' + LWSi18n.t('rallyOfTarget') + ')</span>'
+          + '</div>'
+          + '</div>';
+      }).join('');
+    }
+
+    function escapeHtml(s) {
+      return String(s || '').replace(/[&<>"']/g, function (c) {
+        return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c];
+      });
+    }
+
+    // Wire up rally UI once DOM is ready.
+    (function wireRally() {
+      var btn = document.getElementById('btnRallySuggest');
+      var ta = document.getElementById('rallyRoster');
+      if (btn) btn.addEventListener('click', renderRally);
+      if (ta) ta.addEventListener('input', function () {
+        // Live-update member count on typing; only recompute cards on button click.
+        var countEl = document.getElementById('rallyRosterCount');
+        if (countEl) countEl.textContent = String(parseRallyRoster(ta.value).length);
+      });
+    })();
+
+    // Wire up season-start override (timeline card).
+    (function wireTimelineStart() {
+      var input = document.getElementById('tlSeasonStart');
+      if (!input) return;
+      input.addEventListener('change', function () {
+        if (input.value) {
+          // Interpret as local time (browser). Store as ISO for consistency.
+          var d = new Date(input.value);
+          if (!isNaN(d.getTime())) {
+            SEASON_START_ISO = d.toISOString();
+            renderTimeline();
+          }
+        } else {
+          SEASON_START_ISO = null;
+          renderTimeline();
+        }
+      });
+    })();
 
     // ---- button handlers (stubbed) -----------------------------------------
 
@@ -1038,6 +1487,30 @@
       window.LWSSeasons.resolve().then(function (ctx) {
         window.__LWS_SEASON_NAME = (ctx.season && ctx.season.name && (ctx.season.name.en || ctx.season.name.ko)) || ctx.season_id;
         var mc = (ctx.season && ctx.season.mechanics_config) || {};
+
+        // Season start date: prefer per-warzone override (warzones.json) → season default.
+        // Warzones.json stores season_start_date as YYYY-MM-DD (no time) — landing typically at
+        // ~13:00 server time. If time is missing we anchor at 13:00 UTC as a reasonable default.
+        var startIso = null;
+        if (ctx.warzone && ctx.warzone.season_start_date) {
+          startIso = ctx.warzone.season_start_date;
+        } else if (ctx.season && ctx.season.start_date) {
+          startIso = ctx.season.start_date;
+        }
+        if (startIso && startIso.length === 10) startIso = startIso + 'T13:00:00Z';
+        SEASON_START_ISO = startIso;
+        // Reflect into the datetime-local input so the R5 can override it.
+        var tlInput = document.getElementById('tlSeasonStart');
+        if (tlInput && startIso) {
+          var d = new Date(startIso);
+          if (!isNaN(d.getTime())) {
+            // datetime-local wants YYYY-MM-DDTHH:MM in the browser's local zone.
+            var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+            tlInput.value = d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate())
+                          + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+          }
+        }
+
         applyMechanicsConfig(ctx.season_id, mc);
         // Update the resource column header (city-mode only) via i18n key so the KR
         // toggle switches Spice/Copper/Soil translations at the same time.
@@ -1053,6 +1526,10 @@
         renderCapacity();
         renderQueue();
         renderProtection();
+        // renderResistanceTable/renderCadence/renderTimeline already invoked from applyMechanicsConfig,
+        // but call renderRally too in case the roster textarea already has content persisted from a
+        // prior visit (browser autofill / bfcache).
+        try { renderRally(); } catch (e) { /* rally roster may be empty — safe to swallow */ }
       }).catch(function (e) {
         console.warn('[capture-planner] LWSSeasons unavailable — using S2 defaults', e);
       });
@@ -1073,12 +1550,23 @@
     renderCapacity();
     renderQueue();
     renderProtection();
+    renderResistanceTable();
+    renderCadence();
+    renderTimeline();
 
-    // Tick protection countdowns every 60s
-    setInterval(renderProtection, 60 * 1000);
+    // Tick protection countdowns every 60s. Also tick the timeline so "opens in"
+    // labels + NOW marker stay accurate on long-open tabs.
+    setInterval(function () { renderProtection(); renderTimeline(); }, 60 * 1000);
   </script>
   <script src="static/seasons-lib.js" defer></script>
   <script src="https://chat.r5tools.io/widget.js" defer></script>
+  <!-- Shared roster-freshness widget: shows R5s how stale their most-recent roster upload is
+       so they can prompt members to re-scan before rally planning. Widget auto-mounts to a
+       #roster-freshness-slot if present, or floats bottom-right. Silent no-op if unreachable. -->
+  <script src="https://roster.r5tools.io/static/roster-freshness.js" defer></script>
+  <!-- Shared line-chart component (used by sibling tools; loaded here for cross-tool
+       consistency + future migration of the unlock timeline to a Chart.js-style view). -->
+  <script src="https://r5tools.io/line-chart.js" defer></script>
 <script>window.addEventListener("DOMContentLoaded",function(){if(window.LWSDiscord&&typeof LWSDiscord.attachToButton==="function"){setTimeout(function(){LWSDiscord.attachToButton({pngBtnId:"btnExportPng",slotId:"lws-discord-slot",gearSlotId:"lws-discord-gear-slot",filename:"city-capture.png",contextText:"City Capture Plan",toolName:"City Capture Planner"});},300);}});</script>
 </body>
 </html>
